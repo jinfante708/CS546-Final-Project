@@ -87,8 +87,52 @@ function validDateOfBirth(dob) {
   return true;
 }
 
+// Validate a number
+function validNumber(num) {
+  // Is the number given?
+  if (!num) {
+    return false;
+  }
+
+  // Is the number of type number?
+  if (typeof num !== "number") {
+    return false;
+  }
+
+  return true;
+}
+
+/* 
+  Validate urgency and importance fields in our "Create a task" form
+   
+  Note: Urgency will probably be calculated in the backend based on how close to the deadline
+  it is for a specific task relative to the current date
+*/
+function validFormNumber(num) {
+  // Is the number valid?
+  if (!validNumber(num)) {
+    return false;
+  }
+
+  // Is the number a valid integer and is it between 1 and 10?
+  if (!Number.isInteger(num) || num < 1 || num > 10) {
+    return false;
+  }
+
+  return true;
+}
+
+// Converts a MongoDB document's id to a string
+function convertId(doc) {
+  doc._id = doc._id.toString();
+  return doc;
+}
+
 module.exports = {
   validString,
   validEmail,
   validDateOfBirth,
+  validNumber,
+  validFormNumber,
+  convertId,
 };
