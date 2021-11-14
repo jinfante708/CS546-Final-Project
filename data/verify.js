@@ -1,4 +1,5 @@
 /* Collective error checking for all data files and routes*/
+const moment = require("moment");
 
 // Validate a string
 function validString(input) {
@@ -20,6 +21,7 @@ function validString(input) {
   return true;
 }
 
+// Validate an email
 function validEmail(email) {
   // Is the email given?
   if (!email) {
@@ -43,7 +45,47 @@ function validEmail(email) {
   return re.test(String(email).toLowerCase());
 }
 
-function validDateOfBirth(dob) {}
+// Validate a date
+function validDate(date) {
+  // Is the date given?
+  if (!date) {
+    return false;
+  }
+
+  // Is the date of type string?
+  if (typeof date !== "string") {
+    return false;
+  }
+
+  // Is the date empty whitespace?
+  if (date.trim().length === 0) {
+    return false;
+  }
+
+  // Is the date valid?
+  if (!moment(date, "MM/DD/YYYY", true).isValid()) {
+    return false;
+  }
+
+  return true;
+}
+
+// Validate a date of birth
+function validDateOfBirth(dob) {
+  // Validate general date in MM/DD/YYY format
+  if (!validDate(dob)) {
+    return false;
+  }
+
+  // Is date of birth before today's date?
+  // Using the day parameter in isBefore will check for year, month, and day
+  // https://momentjs.com/docs/#/query/is-before/
+  if (!moment(dob, "MM/DD/YYYY").isBefore(moment(), "day")) {
+    return false;
+  }
+
+  return true;
+}
 
 module.exports = {
   validString,
