@@ -68,13 +68,13 @@ async function get(id){
 
 }
 
-async function update(id, ListName, tasks, isDeleted, dateOfDeletion){
+async function update(id, listName, tasks, isDeleted, dateOfDeletion){
     if(!verify.validString(id)){
         throw "id is invalid string.";
     }
 
-    if(!verify.validString(ListName)){
-        throw "ListName is invalid string.";
+    if(!verify.validString(listName)){
+        throw "listName is invalid string.";
     }
 
     let oldList = await this.get(id);
@@ -84,7 +84,7 @@ async function update(id, ListName, tasks, isDeleted, dateOfDeletion){
     const taskListCollection = await taskLists();
 
     const newList = {
-        ListName:ListName,
+        listName:listName,
         tasks: tasks,
         isDeleted: isDeleted,
         dateOfDeletion: dateOfDeletion,
@@ -111,7 +111,7 @@ async function remove(id){
 
     const theList = await this.get(id);
 
-    let name = theList.ListName;
+    let name = theList.listName;
     let tasks = theList.tasks;
 
     const today = new Date();
