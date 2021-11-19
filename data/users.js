@@ -3,6 +3,7 @@ const uuid = require("uuid");
 const validator = require("validator");
 const verify = require("./verify");
 const bcryptjs = require("bcryptjs");
+const moment = require("moment");
 
 const users = mongoCollections.users;
 
@@ -46,6 +47,7 @@ async function create(_firstName, _lastName, _email, _dateOfBirth, _password) {
             email: email,
             dateOfBirth: dateOfBirth,
             password: passwordHash,
+            dateOfCreation: moment().format("MM/DD/YYYY"),
         };
 
         const insertedInfo = await usersCollection.insertOne(newUser);

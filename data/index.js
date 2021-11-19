@@ -3,7 +3,7 @@ const tasksData = require("./tasks");
 const usersData = require("./users");
 
 module.exports = {
-  tasklists: tasklistsData,
-  tasks: tasksData,
-  usersData: usersData,
+    tasklists: tasklistsData,
+    tasks: tasksData,
+    users: usersData,
 };
