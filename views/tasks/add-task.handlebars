@@ -1,18 +1,43 @@
 {{!-- Fields given by user: Name, Importance, Deadline Date --}}
 <h1>Create a new task</h1>
-<form id="add-task-form" action="/tasks" method="POST">
+{{!-- 
+      novalidate attribute is needed for custom Bootstrap form validation messages
+      it disables the browser default feedback tooltips, but still provides access to
+      the form validation APIs in JavaScript 
+--}}
+<form id="add-task-form" action="/tasks" method="POST" class="needs-validation" novalidate>
     <label for="task-name">Name</label>
-    <input type="text" id="task-name" name="task-name" placeholder="Task Name">
+    <input type="text" id="task-name-input" name="task-name" placeholder="Task Name">
+    <div class="valid-feedback">
+        Looks good!
+    </div>
+    <div class="invalid-feedback">
+        Please provide a task name
+    </div>
 
     <label for="importance">Importance</label>
-    <input type="text" id="importance" name="importance" placeholder="Importance">
+    <input type="text" id="importance-input" name="importance" placeholder="Importance">
+    <div class="valid-feedback">
+        Looks good!
+    </div>
+    <div class="invalid-feedback">
+        Please provide a valid rating for Importance (Number from 1 to 10)
+    </div>
 
     <label for="deadline">Deadline Date</label>
-    <input type="text" id="deadline" name="deadline" placeholder="Deadline">
+    <input type="text" id="deadline-input" name="deadline" placeholder="Deadline">
+    <div class="valid-feedback">
+        Looks good!
+    </div>
+    <div class="invalid-feedback">
+        Please provide a valid date in MM/DD/YYYY format
+    </div>
 
-    <button type="submit" id="submitButton" name="submitButton">Add Task</button>
+    <button type="submit" id="submitButton" name="submitButton">Submit New Task</button>
 
-    {{!-- Will use bootstrap for error validation, but will leave this here for now --}}
+    {{!-- Will use bootstrap for error validation so the request should never reach
+    the server, but I'll leave this here in the scenario that it does need to render
+    errors sent through routes --}}
     {{#if hasErrors}}
         <ul class="error-list">
             {{#each errors}}
@@ -21,3 +46,4 @@
         </ul>
     {{/if}}
 </form>
+<script src="/public/js/taskForm.js"></script>
