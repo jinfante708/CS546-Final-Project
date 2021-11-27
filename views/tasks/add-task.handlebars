@@ -1,0 +1,23 @@
+{{!-- Fields given by user: Name, Importance, Deadline Date --}}
+<h1>Create a new task</h1>
+<form id="add-task-form" action="/tasks" method="POST">
+    <label for="task-name">Name</label>
+    <input type="text" id="task-name" name="task-name" placeholder="Task Name">
+
+    <label for="importance">Importance</label>
+    <input type="text" id="importance" name="importance" placeholder="Importance">
+
+    <label for="deadline">Deadline Date</label>
+    <input type="text" id="deadline" name="deadline" placeholder="Deadline">
+
+    <button type="submit" id="submitButton" name="submitButton">Add Task</button>
+
+    {{!-- Will use bootstrap for error validation, but will leave this here for now --}}
+    {{#if hasErrors}}
+        <ul class="error-list">
+            {{#each errors}}
+                <li>{{this}}</li>
+            {{/each}}
+        </ul>
+    {{/if}}
+</form>
