@@ -46,4 +46,9 @@
         </ul>
     {{/if}}
 </form>
-<script src="/public/js/taskForm.js"></script>
+<script type="text/JavaScript" src="https://momentjs.com/downloads/moment.js"></script>
+
+{{!-- I need to load the jquery library before our client side javascript, or else it won't
+be able to properly compile. I think we need to use partials in order to load the respective
+client-side javascript files (such as taskForm.js) at the end of our main.handlebars--}}
+{{!-- <script src="/public/js/taskForm.js"></script> --}} --}}
