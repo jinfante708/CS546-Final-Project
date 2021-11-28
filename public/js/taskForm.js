@@ -3,7 +3,7 @@ $(document).ready(function () {
 
   function validString(str) {
     // Is input given? Is input not a number? (All form input is of type string)
-    if (!str || isNaN(str)) {
+    if (!str || !isNaN(str)) {
       hasErrors = true;
       return false;
     }
@@ -11,8 +11,8 @@ $(document).ready(function () {
     return true;
   }
 
-  function validNumber(num) {
-    if (!num || !isNaN(num)) {
+  function validFormNumber(num) {
+    if (!num || isNaN(num) || num < 1 || num > 10) {
       hasErrors = true;
       return false;
     }
@@ -22,7 +22,7 @@ $(document).ready(function () {
 
   // Is date given? Is date of format MM/DD/YYYY?
   function validDate(date) {
-    if (!date || !moment(dateOfReview, "MM/DD/YYYY", true).isValid()) {
+    if (!date || !moment(date, "MM/DD/YYYY", true).isValid()) {
       hasErrors = true;
       return false;
     }
@@ -53,31 +53,39 @@ $(document).ready(function () {
       deadlineDate: deadlineDate.val().trim(),
     };
 
+    console.log(taskInfo);
     // Client-side error checking for three fields
 
     // Is the task name a valid string?
     if (!validString(taskInfo.name)) {
       name.addClass("is-invalid");
+      console.log("invalid name path hit");
     } else {
+      console.log("valid name path hit");
       name.addClass("is-valid");
     }
 
     // Is importance a valid number?
-    if (!validNumber(taskInfo.importance)) {
+    if (!validFormNumber(taskInfo.importance)) {
       importance.addClass("is-invalid");
+      console.log("invalid number path hit");
     } else {
+      console.log("valid number path hit");
       importance.addClass("is-valid");
     }
 
     // Is deadlineDate a valid date?
     if (!validDate(taskInfo.deadlineDate)) {
       deadlineDate.addClass("is-invalid");
+      console.log("invalid deadline path hit");
     } else {
-      deadlineDate.addClass("is-invalid");
+      deadlineDate.addClass("is-valid");
+      console.log("valid deadline path hit");
     }
 
     if (!hasErrors) {
-      form.unbind().submit();
+      // unbind() is deprecated, use .off() instead
+      form.off().submit();
     } else {
       submitBtn.prop("disabled", false);
     }

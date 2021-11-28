@@ -6,31 +6,37 @@
       the form validation APIs in JavaScript 
 --}}
 <form id="add-task-form" action="/tasks" method="POST" class="needs-validation" novalidate>
-    <label for="task-name">Name</label>
-    <input type="text" id="task-name-input" name="task-name" placeholder="Task Name">
-    <div class="valid-feedback">
-        Looks good!
-    </div>
-    <div class="invalid-feedback">
-        Please provide a task name
-    </div>
-
-    <label for="importance">Importance</label>
-    <input type="text" id="importance-input" name="importance" placeholder="Importance">
-    <div class="valid-feedback">
-        Looks good!
-    </div>
-    <div class="invalid-feedback">
-        Please provide a valid rating for Importance (Number from 1 to 10)
+    <div class="form-group">
+        <label for="task-name">Name</label>
+        <input type="text" id="task-name-input" name="task-name" placeholder="Task Name">
+        <div class="valid-feedback">
+            Looks good!
+        </div>
+        <div class="invalid-feedback">
+            Please provide a task name
+        </div>
     </div>
 
-    <label for="deadline">Deadline Date</label>
-    <input type="text" id="deadline-input" name="deadline" placeholder="Deadline">
-    <div class="valid-feedback">
-        Looks good!
+    <div class="form-group">
+        <label for="importance">Importance</label>
+        <input type="number" id="importance-input" name="importance" placeholder="Importance">
+        <div class="valid-feedback">
+            Looks good!
+        </div>
+        <div class="invalid-feedback">
+            Please provide a valid rating for Importance (Number from 1 to 10)
+        </div>
     </div>
-    <div class="invalid-feedback">
-        Please provide a valid date in MM/DD/YYYY format
+
+    <div class="form-group">
+        <label for="deadline">Deadline Date</label>
+        <input type="text" id="deadline-input" name="deadline" placeholder="Deadline">
+        <div class="valid-feedback">
+            Looks good!
+        </div>
+        <div class="invalid-feedback">
+            Please provide a valid date in MM/DD/YYYY format
+        </div>
     </div>
 
     <button type="submit" id="submitButton" name="submitButton">Submit New Task</button>
@@ -47,8 +53,10 @@
     {{/if}}
 </form>
 <script type="text/JavaScript" src="https://momentjs.com/downloads/moment.js"></script>
-
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
 {{!-- I need to load the jquery library before our client side javascript, or else it won't
 be able to properly compile. I think we need to use partials in order to load the respective
-client-side javascript files (such as taskForm.js) at the end of our main.handlebars--}}
-{{!-- <script src="/public/js/taskForm.js"></script> --}} --}}
+client-side javascript files (such as taskForm.js) at the end of our main.handlebars. Essentially
+I'm trying to avoid including the jquery CDN in every individual handlebars file and would like to 
+keep in stored in main.handlebars.--}}
+<script src="/public/js/taskForm.js"></script>
