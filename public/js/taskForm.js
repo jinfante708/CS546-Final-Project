@@ -53,7 +53,7 @@ $(document).ready(function () {
       deadlineDate: deadlineDate.val().trim(),
     };
 
-    console.log(taskInfo);
+    // console.log(taskInfo);
     // Client-side error checking for three fields
 
     // Is the task name a valid string?
