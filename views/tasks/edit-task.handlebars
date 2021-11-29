@@ -8,6 +8,11 @@
 {{!-- Remove action and method attribute since we're using AJAX here --}}
 <form id="edit-task-form" class="needs-validation" novalidate>
     <div class="form-group">
+        <label for="task-id">Task ID</label>
+        <input type="text" id="task-id" name="task-id" placeholder="Task ID" value={{_id}} readonly>
+    </div>
+
+    <div class="form-group">
         <label for="task-name">Name</label>
         <input type="text" id="task-name-input" name="task-name" placeholder="Task Name" value={{name}}>
         <div class="valid-feedback">

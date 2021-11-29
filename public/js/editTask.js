@@ -31,6 +31,7 @@ $(document).ready(function () {
   }
 
   let form = $("#edit-task-form");
+  let id = $("#task-id");
   let name = $("#task-name-input");
   let importance = $("#importance-input");
   let deadlineDate = $("#deadline-input");
@@ -86,8 +87,7 @@ $(document).ready(function () {
     if (!hasErrors) {
       var requestConfig = {
         method: "PUT",
-        // This should return /tasks/:id
-        url: window.location.pathname,
+        url: `/tasks/${id}`,
         contentType: "application/json",
         data: JSON.stringify(taskInfo),
       };
