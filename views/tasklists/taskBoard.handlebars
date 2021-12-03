@@ -1,0 +1,13 @@
+<h1>
+    Task Board 
+</h1>
+
+
+<ul id = "taskLists_on_board">
+    {{#each taskLists}}
+
+    <li>{{this.listName}}</li>
+    {{!-- <li><a href = "/tasks/{{this._id}}"{{this.listName}}></a></li> --}}
+
+    {{/each}}
+</ul>
