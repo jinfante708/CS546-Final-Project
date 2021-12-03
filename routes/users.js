@@ -1,7 +1,8 @@
 const express = require("express");
 const data = require("../data");
 const validator = require("validator");
-const verify = require("./verify");
+const xss = require("xss");
+const verify = require("../data/verify");
 
 const usersData = data.users;
 const router = express.Router();
@@ -39,19 +40,23 @@ router.post("/signup", async (request, response) => {
     try {
         const requestPostData = request.body;
 
-        displayFirstName = requestPostData.firstName;
-        displayLastName = requestPostData.lastName;
-        displayEmail = requestPostData.email;
-        displayDateOfBirth = requestPostData.dateOfBirth;
-        displayPassword = requestPostData.password;
+        console.log(request.body);
+
+        displayFirstName = xss(requestPostData.firstName);
+        displayLastName = xss(requestPostData.lastName);
+        displayEmail = xss(requestPostData.email);
+        displayDateOfBirth = xss(requestPostData.dateOfBirth);
+        displayPassword = xss(requestPostData.password);
 
         validateSignUpTotalFields(Object.keys(requestPostData).length);
 
-        const firstName = validateFirstName(requestPostData.firstName);
-        const lastName = validateLastName(requestPostData.lastName);
-        const email = validateEmail(requestPostData.email);
-        const dateOfBirth = validateDateOfBirth(requestPostData.dateOfBirth);
-        const password = validatePassword(requestPostData.password);
+        const firstName = validateFirstName(xss(requestPostData.firstName));
+        const lastName = validateLastName(xss(requestPostData.lastName));
+        const email = validateEmail(xss(requestPostData.email));
+        const dateOfBirth = validateDateOfBirth(
+            xss(requestPostData.dateOfBirth)
+        );
+        const password = validatePassword(xss(requestPostData.password));
 
         const user = await usersData.create(
             firstName,
@@ -68,20 +73,9 @@ router.post("/signup", async (request, response) => {
             );
         }
 
-        //change this after UI
-        response.redirect("/");
+        response.json({ isError: false });
     } catch (error) {
-        response
-            .status(error.code || ErrorCode.INTERNAL_SERVER_ERROR)
-            .render("users/sign-up", {
-                pageTitle: "Sign-up",
-                firstName: displayFirstName,
-                lastName: displayLastName,
-                email: displayEmail,
-                dateOfBirth: displayDateOfBirth,
-                password: displayPassword,
-                error: error.message || "Internal server error",
-            });
+        response.json({ isError: false, error: error });
     }
 });
 
@@ -94,13 +88,13 @@ router.post("/login", async (request, response) => {
     try {
         const requestPostData = request.body;
 
-        displayEmail = requestPostData.email;
-        displayPassword = requestPostData.password;
+        displayEmail = xss(requestPostData.email);
+        displayPassword = xss(requestPostData.password);
 
         validateLoginTotalArguments(Object.keys(requestPostData).length);
 
-        const email = validateEmail(requestPostData.email);
-        const password = validatePassword(requestPostData.password);
+        const email = validateEmail(xss(requestPostData.email));
+        const password = validatePassword(xss(requestPostData.password));
 
         const user = await usersData.checkUser(email, password);
 
@@ -112,6 +106,8 @@ router.post("/login", async (request, response) => {
         }
 
         request.session.user = { user };
+
+        request.app.locals.isUserAuthenticated = true;
 
         //change this after UI
         response.redirect("/private");

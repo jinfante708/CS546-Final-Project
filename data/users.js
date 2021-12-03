@@ -1,6 +1,7 @@
 const mongoCollections = require("../config/mongoCollections");
 const uuid = require("uuid");
 const validator = require("validator");
+const xss = require("xss");
 const verify = require("./verify");
 const bcryptjs = require("bcryptjs");
 const moment = require("moment");
@@ -19,11 +20,11 @@ async function create(_firstName, _lastName, _email, _dateOfBirth, _password) {
     try {
         validateCreateTotalArguments(arguments.length);
 
-        const firstName = validateFirstName(_firstName);
-        const lastName = validateLastName(_lastName);
-        const email = validateEmail(_email);
-        const dateOfBirth = validateDateOfBirth(_dateOfBirth);
-        const password = validatePassword(_password);
+        const firstName = validateFirstName(xss(_firstName));
+        const lastName = validateLastName(xss(_lastName));
+        const email = validateEmail(xss(_email));
+        const dateOfBirth = validateDateOfBirth(xss(_dateOfBirth));
+        const password = validatePassword(xss(_password));
 
         const usersCollection = await users();
 
@@ -48,6 +49,7 @@ async function create(_firstName, _lastName, _email, _dateOfBirth, _password) {
             dateOfBirth: dateOfBirth,
             password: passwordHash,
             dateOfCreation: moment().format("MM/DD/YYYY"),
+            taskList: [],
         };
 
         const insertedInfo = await usersCollection.insertOne(newUser);
@@ -69,7 +71,7 @@ async function get(_userId) {
     try {
         validateGetTotalArguments(arguments.length);
 
-        const userId = validateUserId(_userId);
+        const userId = validateUserId(xss(_userId));
 
         const usersCollection = await users();
 
@@ -100,8 +102,8 @@ async function checkUser(_email, _password) {
     try {
         validateCheckUserTotalArguments(arguments.length);
 
-        const email = validateEmail(_email);
-        const password = validatePassword(_password);
+        const email = validateEmail(xss(_email));
+        const password = validatePassword(xss(_password));
 
         const usersCollection = await users();
 

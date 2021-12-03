@@ -1,0 +1,22 @@
+.mandatory {
+    color: #b71c1c;
+}
+
+#loader-container {
+    background: #fff;
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 999999;
+    opacity: 0.8;
+    overflow: hidden;
+    height: 100%;
+}
+
+#loader {
+    position: absolute;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+}
