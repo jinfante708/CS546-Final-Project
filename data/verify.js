@@ -131,6 +131,7 @@ function convertId(doc) {
 module.exports = {
   validString,
   validEmail,
+  validDate,
   validDateOfBirth,
   validNumber,
   validFormNumber,

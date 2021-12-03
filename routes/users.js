@@ -1,7 +1,7 @@
 const express = require("express");
 const data = require("../data");
 const validator = require("validator");
-const verify = require("./verify");
+const verify = require("../data/verify");
 
 const usersData = data.users;
 const router = express.Router();
@@ -129,11 +129,11 @@ router.post("/login", async (request, response) => {
 
 //logout
 router.get("/logout", async (request, response) => {
-    const user = request.session.user;
+     const user = request.session.user;
 
-    if (user) {
-        request.session.destroy();
-    }
+     if (user) {
+         request.session.destroy();
+     }
 
     response.redirect("/");
 });
