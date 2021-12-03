@@ -22,6 +22,37 @@ router.get('/', async (req,res) =>{
     }
 });
 
+
+router.get('/upcoming', async (req, res)=>{
+    try{
+        let AllTaskList = await taskListsData.getAll();
+
+        let filtered = [];
+        for (let x  of AllTaskList){
+            if(x.isDeleted === false){
+                filtered.push(x);
+            }
+        }
+
+        let AllFirstTasks = [];
+        for (let y of filtered){
+            if(y.tasks.length > 0){
+                AllFirstTasks.push(y.tasks[0]);
+            }
+            else{
+                AllFirstTasks.push("N/A");
+            }
+            
+            
+        }
+
+        res.status(200).render('tasklists/upcoming', {pageTitle: "Upcoming tasks", firstTasks:AllFirstTasks});
+    }
+    catch(e){
+        res.status(500).json({error: e});
+    }
+});
+
 router.get('/:id', async (req, res) =>{
 
     try{
