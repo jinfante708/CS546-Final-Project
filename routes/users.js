@@ -40,8 +40,6 @@ router.post("/signup", async (request, response) => {
     try {
         const requestPostData = request.body;
 
-        console.log(request.body);
-
         displayFirstName = xss(requestPostData.firstName);
         displayLastName = xss(requestPostData.lastName);
         displayEmail = xss(requestPostData.email);
@@ -75,7 +73,10 @@ router.post("/signup", async (request, response) => {
 
         response.json({ isError: false });
     } catch (error) {
-        response.json({ isError: false, error: error });
+        response.status(error.code || 500).json({
+            isError: true,
+            error: error.message || "Error: Internal server error.",
+        });
     }
 });
 

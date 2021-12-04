@@ -6,6 +6,8 @@
 
         hasErrors = false;
 
+        $("#error-message").addClass("d-none");
+
         const firstName = $("#firstName");
         const lastName = $("#lastName");
         const email = $("#email");
@@ -48,6 +50,19 @@
 
         user.dateOfBirth = moment(user.dateOfBirth).format("MM/DD/YYYY");
 
+        submitSignUpForm(user);
+    });
+
+    $(document).on("click", "button#show-password", function () {
+        $("#password").attr(
+            "type",
+            $("#password").attr("type") === "password" ? "text" : "password"
+        );
+
+        $(this).html($(this).html() === "Show" ? "Hide" : "Show");
+    });
+
+    function submitSignUpForm(user) {
         $.ajax({
             url: "/users/signup",
             method: "POST",
@@ -56,14 +71,18 @@
             beforeSend: function () {
                 $("#loader-container").removeClass("d-none");
             },
-            success: function (data) {
-                console.log(data);
+            success: function () {
+                window.location.href = "/users";
             },
             complete: function () {
                 $("#loader-container").addClass("d-none");
             },
+            error: function (data) {
+                $("#error-message").html(data.responseJSON.error);
+                $("#error-message").removeClass("d-none");
+            },
         });
-    });
+    }
 
     function validUserIdentity(name) {
         if (validator.isEmpty(name)) {
