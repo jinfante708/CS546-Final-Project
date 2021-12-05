@@ -15,36 +15,30 @@ const ErrorCode = {
 
 //login form
 router.get("/", async (request, response) => {
-    redirectIfLoggedIn(request, response, "/");
+    if (request.session.user) {
+        return response.redirect("/");
+    }
 
     response.render("users/login", { pageTitle: "Login" });
 });
 
 //signup form
 router.get("/signup", async (request, response) => {
-    redirectIfLoggedIn(request, response, "/");
+    if (request.session.user) {
+        return response.redirect("/");
+    }
 
     response.render("users/sign-up", { pageTitle: "Sign-up" });
 });
 
 //signup submit
 router.post("/signup", async (request, response) => {
-    redirectIfLoggedIn(request, response, "/");
-
-    let displayFirstName,
-        displayLastName,
-        displayEmail,
-        displayDateOfBirth,
-        displayPassword;
+    if (request.session.user) {
+        return response.redirect("/");
+    }
 
     try {
         const requestPostData = request.body;
-
-        displayFirstName = xss(requestPostData.firstName);
-        displayLastName = xss(requestPostData.lastName);
-        displayEmail = xss(requestPostData.email);
-        displayDateOfBirth = xss(requestPostData.dateOfBirth);
-        displayPassword = xss(requestPostData.password);
 
         validateSignUpTotalFields(Object.keys(requestPostData).length);
 
@@ -82,15 +76,12 @@ router.post("/signup", async (request, response) => {
 
 //login submit
 router.post("/login", async (request, response) => {
-    redirectIfLoggedIn(request, response, "/");
-
-    let displayEmail, displayPassword;
+    if (request.session.user) {
+        return response.redirect("/");
+    }
 
     try {
         const requestPostData = request.body;
-
-        displayEmail = xss(requestPostData.email);
-        displayPassword = xss(requestPostData.password);
 
         validateLoginTotalArguments(Object.keys(requestPostData).length);
 
@@ -110,17 +101,12 @@ router.post("/login", async (request, response) => {
 
         request.app.locals.isUserAuthenticated = true;
 
-        //change this after UI
-        response.redirect("/private");
+        response.json({ isError: false });
     } catch (error) {
-        response
-            .status(error.code || ErrorCode.INTERNAL_SERVER_ERROR)
-            .render("users/login", {
-                pageTitle: "Login",
-                email: displayEmail,
-                password: displayPassword,
-                error: error.message || "Internal Server Error",
-            });
+        response.status(error.code || 500).json({
+            isError: true,
+            error: error.message || "Error: Internal server error.",
+        });
     }
 });
 
@@ -130,9 +116,10 @@ router.get("/logout", async (request, response) => {
 
     if (user) {
         request.session.destroy();
+        request.app.locals.isUserAuthenticated = false;
     }
 
-    response.redirect("/");
+    response.redirect("/users");
 });
 
 //All validations
@@ -246,14 +233,6 @@ const validatePassword = (password) => {
 
 const throwError = (code = 500, message = "Internal Server Error") => {
     throw { code, message };
-};
-
-const redirectIfLoggedIn = (request, response, redirectTo = "/") => {
-    const user = request.session.user;
-
-    if (user) {
-        response.redirect(redirectTo);
-    }
 };
 
 module.exports = router;

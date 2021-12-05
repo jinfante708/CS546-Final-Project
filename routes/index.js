@@ -6,6 +6,9 @@ const constructorMethod = (app) => {
     app.use("/taskslists", tasklistsRoutes);
     app.use("/tasks", tasksRoutes);
     app.use("/users", usersRoutes);
+    app.get("/", (request, response) => {
+        return response.render("home", { pageTitle: "Home" });
+    });
 
     //for accessing unknown routes
     app.use("*", (request, response) => {

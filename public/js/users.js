@@ -84,6 +84,60 @@
         });
     }
 
+    $(document).on("submit", "form#login-form", function (event) {
+        event.preventDefault();
+
+        hasErrors = false;
+
+        $("#error-message").addClass("d-none");
+
+        const email = $("#email");
+        const password = $("#password");
+
+        const user = {
+            email: email.val().trim(),
+            password: password.val(),
+        };
+
+        $("input").removeClass("is-invalid is-valid");
+
+        validEmail(user.email)
+            ? email.addClass("is-valid")
+            : email.addClass("is-invalid");
+
+        validPassword(user.password)
+            ? password.addClass("is-valid")
+            : password.addClass("is-invalid");
+
+        if (hasErrors) {
+            return;
+        }
+
+        submitLoginForm(user);
+    });
+
+    function submitLoginForm(user) {
+        $.ajax({
+            url: "/users/login",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(user),
+            beforeSend: function () {
+                $("#loader-container").removeClass("d-none");
+            },
+            success: function () {
+                window.location.href = "/";
+            },
+            complete: function () {
+                $("#loader-container").addClass("d-none");
+            },
+            error: function (data) {
+                $("#error-message").html(data.responseJSON.error);
+                $("#error-message").removeClass("d-none");
+            },
+        });
+    }
+
     function validUserIdentity(name) {
         if (validator.isEmpty(name)) {
             hasErrors = true;
