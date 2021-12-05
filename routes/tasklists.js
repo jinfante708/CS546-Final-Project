@@ -7,7 +7,46 @@ router.get('/', async (req,res) =>{
     try{
         let AllTaskList = await taskListsData.getAll();
 
-        res.status(200).json(AllTaskList);
+        let filtered = [];
+        for (let x  of AllTaskList){
+            if(x.isDeleted === false){
+                filtered.push(x);
+            }
+        }
+
+        // res.status(200).json(AllTaskList);
+        res.status(200).render('tasklists/taskBoard', {pageTitle: "Task Board", taskLists: filtered});
+    }
+    catch(e){
+        res.status(500).json({error: e});
+    }
+});
+
+
+router.get('/upcoming', async (req, res)=>{
+    try{
+        let AllTaskList = await taskListsData.getAll();
+
+        let filtered = [];
+        for (let x  of AllTaskList){
+            if(x.isDeleted === false){
+                filtered.push(x);
+            }
+        }
+
+        let AllFirstTasks = [];
+        for (let y of filtered){
+            if(y.tasks.length > 0){
+                AllFirstTasks.push(y.tasks[0]);
+            }
+            else{
+                AllFirstTasks.push("N/A");
+            }
+            
+            
+        }
+
+        res.status(200).render('tasklists/upcoming', {pageTitle: "Upcoming tasks", firstTasks:AllFirstTasks});
     }
     catch(e){
         res.status(500).json({error: e});
@@ -28,7 +67,7 @@ router.get('/:id', async (req, res) =>{
 router.post('/', async (req,res) =>{
     let listInfo = req.body;
 
-    if(! listInfo){
+    if(!listInfo){
         res.status(400).json({error: 'you must provide data to create a task list.'});
         return;
     }
