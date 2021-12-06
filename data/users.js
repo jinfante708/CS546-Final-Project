@@ -221,6 +221,54 @@ async function updatePassword(
     }
 }
 
+async function updateProfile(_userId, _firstName, _lastName, _dateOfBirth) {
+    try {
+        validateUpdateProfileTotalArguments(arguments.length);
+
+        const userId = validateUserId(xss(_userId));
+        const firstName = validateFirstName(xss(_firstName));
+        const lastName = validateLastName(xss(_lastName));
+        const dateOfBirth = validateDateOfBirth(xss(_dateOfBirth));
+
+        const usersCollection = await users();
+
+        const user = await usersCollection.findOne(
+            { _id: userId },
+            {
+                projection: {
+                    _id: 1,
+                },
+            }
+        );
+
+        if (!user) {
+            throwError(ErrorCode.NOT_FOUND, "Error: User not found.");
+        }
+
+        const toBeUpdated = {
+            firstName: firstName,
+            lastName: lastName,
+            dateOfBirth: dateOfBirth,
+        };
+
+        const updatedInfo = await usersCollection.updateOne(
+            { _id: userId },
+            { $set: toBeUpdated }
+        );
+
+        if (updatedInfo.modifiedCount !== 1) {
+            throwError(
+                ErrorCode.INTERNAL_SERVER_ERROR,
+                "Error: Could not update profile."
+            );
+        }
+
+        return { profileUpdated: true };
+    } catch (error) {
+        throwCatchError(error);
+    }
+}
+
 //All validations
 const validateCreateTotalArguments = (totalArguments) => {
     const TOTAL_MANDATORY_ARGUMENTS = 5;
@@ -256,6 +304,17 @@ const validateCheckUserTotalArguments = (totalArguments) => {
 };
 
 const validateUpdatePasswordTotalArguments = (totalArguments) => {
+    const TOTAL_MANDATORY_ARGUMENTS = 4;
+
+    if (totalArguments !== TOTAL_MANDATORY_ARGUMENTS) {
+        throwError(
+            ErrorCode.BAD_REQUEST,
+            "Error: All fields need to have valid values."
+        );
+    }
+};
+
+const validateUpdateProfileTotalArguments = (totalArguments) => {
     const TOTAL_MANDATORY_ARGUMENTS = 4;
 
     if (totalArguments !== TOTAL_MANDATORY_ARGUMENTS) {
@@ -400,4 +459,5 @@ module.exports = {
     get,
     checkUser,
     updatePassword,
+    updateProfile,
 };

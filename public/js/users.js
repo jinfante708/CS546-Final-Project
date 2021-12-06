@@ -272,7 +272,7 @@
 
     function submitChangePasswordForm(user) {
         $.ajax({
-            url: "/users/changePassword",
+            url: "/users/password",
             method: "PUT",
             contentType: "application/json",
             data: JSON.stringify(user),

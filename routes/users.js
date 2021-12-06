@@ -156,7 +156,7 @@ router.get("/changePassword", async (request, response) => {
 });
 
 //change password submit
-router.put("/changePassword", async (request, response) => {
+router.put("/password", async (request, response) => {
     if (!request.session.user) {
         return response.redirect("/");
     }
@@ -210,6 +210,50 @@ router.put("/changePassword", async (request, response) => {
     }
 });
 
+router.put("/profile", async (request, response) => {
+    if (!request.session.user) {
+        return response.redirect("/");
+    }
+
+    try {
+        const requestPostData = request.body;
+
+        validateChangeProfileTotalArguments(
+            Object.keys(requestPostData).length
+        );
+
+        const firstName = validateFirstName(xss(requestPostData.firstName));
+        const lastName = validateLastName(xss(requestPostData.lastName));
+        const dateOfBirth = validateDateOfBirth(
+            xss(requestPostData.dateOfBirth)
+        );
+
+        const user = await usersData.updateProfile(
+            request.session.user._id,
+            firstName,
+            lastName,
+            dateOfBirth
+        );
+
+        if (!user.profileUpdated) {
+            throwError(
+                ErrorCode.INTERNAL_SERVER_ERROR,
+                "Internal Server Error"
+            );
+        }
+
+        //Change after UI
+        response.redirect("/");
+    } catch (error) {
+        response
+            .status(error.code || ErrorCode.INTERNAL_SERVER_ERROR)
+            .render("users/update-profile", {
+                pageTitle: "Update Profile",
+                error: error.message || "Internal server error",
+            });
+    }
+});
+
 //All validations
 const validateSignUpTotalFields = (totalFields) => {
     const TOTAL_MANDATORY_FIELDS = 5;
@@ -231,6 +275,17 @@ const validateLoginTotalArguments = (totalArguments) => {
 };
 
 const validateChangePasswordTotalArguments = (totalArguments) => {
+    const TOTAL_MANDATORY_ARGUMENTS = 3;
+
+    if (totalArguments !== TOTAL_MANDATORY_ARGUMENTS) {
+        throwError(
+            ErrorCode.BAD_REQUEST,
+            "Error: All fields need to have valid values."
+        );
+    }
+};
+
+const validateChangeProfileTotalArguments = (totalArguments) => {
     const TOTAL_MANDATORY_ARGUMENTS = 3;
 
     if (totalArguments !== TOTAL_MANDATORY_ARGUMENTS) {
