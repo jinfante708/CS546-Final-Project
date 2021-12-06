@@ -38,6 +38,16 @@ app.use(
     })
 );
 
+//Changing request method
+app.use(function (request, response, next) {
+    if (request.body && request.body._method) {
+        request.method = request.body._method;
+        delete request.body._method;
+    }
+
+    next();
+});
+
 configRoutes(app);
 
 app.listen(PORT, () => {

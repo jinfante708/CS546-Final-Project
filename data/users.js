@@ -148,6 +148,79 @@ async function checkUser(_email, _password) {
     }
 }
 
+async function updatePassword(
+    _userId,
+    _currentPassword,
+    _newPassword,
+    _confirmPassword
+) {
+    try {
+        validateUpdatePasswordTotalArguments(arguments.length);
+
+        const userId = validateUserId(xss(_userId));
+        const currentPassword = validatePassword(xss(_currentPassword));
+        const newPassword = validatePassword(xss(_newPassword));
+        const confirmPassword = validatePassword(xss(_confirmPassword));
+
+        if (newPassword !== confirmPassword) {
+            throwError(
+                ErrorCode.BAD_REQUEST,
+                "Error: Confirm password does not match new password."
+            );
+        }
+
+        const usersCollection = await users();
+
+        const user = await usersCollection.findOne(
+            { _id: userId },
+            {
+                projection: {
+                    _id: 1,
+                    password: 1,
+                },
+            }
+        );
+
+        if (!user) {
+            throwError(ErrorCode.NOT_FOUND, "Error: User not found.");
+        }
+
+        const isPasswordCorrect = await bcryptjs.compare(
+            currentPassword,
+            user.password
+        );
+
+        if (!isPasswordCorrect) {
+            throwError(
+                ErrorCode.BAD_REQUEST,
+                "Error: Incorrect current password."
+            );
+        }
+
+        const newPasswordHash = await bcryptjs.hash(newPassword, SALT_ROUNDS);
+
+        const toBeUpdated = {
+            password: newPasswordHash,
+        };
+
+        const updatedInfo = await usersCollection.updateOne(
+            { _id: userId },
+            { $set: toBeUpdated }
+        );
+
+        if (updatedInfo.modifiedCount !== 1) {
+            throwError(
+                ErrorCode.INTERNAL_SERVER_ERROR,
+                "Error: Could not update password."
+            );
+        }
+
+        return { passwordUpdated: true };
+    } catch (error) {
+        throwCatchError(error);
+    }
+}
+
 //All validations
 const validateCreateTotalArguments = (totalArguments) => {
     const TOTAL_MANDATORY_ARGUMENTS = 5;
@@ -173,6 +246,17 @@ const validateGetTotalArguments = (totalArguments) => {
 
 const validateCheckUserTotalArguments = (totalArguments) => {
     const TOTAL_MANDATORY_ARGUMENTS = 2;
+
+    if (totalArguments !== TOTAL_MANDATORY_ARGUMENTS) {
+        throwError(
+            ErrorCode.BAD_REQUEST,
+            "Error: All fields need to have valid values."
+        );
+    }
+};
+
+const validateUpdatePasswordTotalArguments = (totalArguments) => {
+    const TOTAL_MANDATORY_ARGUMENTS = 4;
 
     if (totalArguments !== TOTAL_MANDATORY_ARGUMENTS) {
         throwError(
@@ -315,4 +399,5 @@ module.exports = {
     create,
     get,
     checkUser,
+    updatePassword,
 };

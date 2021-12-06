@@ -19,7 +19,17 @@ router.get("/", async (request, response) => {
         return response.redirect("/");
     }
 
-    response.render("users/login", { pageTitle: "Login" });
+    const signedUpFlashMessage = request.app.locals.isSignedUp
+        ? request.app.locals.signedUpFlashMessage
+        : false;
+
+    request.app.locals.isSignedUp = undefined;
+    request.app.locals.signedUpFlashMessage = undefined;
+
+    response.render("users/login", {
+        pageTitle: "Login",
+        signedUpFlashMessage: signedUpFlashMessage,
+    });
 });
 
 //signup form
@@ -65,6 +75,10 @@ router.post("/signup", async (request, response) => {
             );
         }
 
+        request.app.locals.isSignedUp = true;
+        request.app.locals.signedUpFlashMessage =
+            "Signed up successfully. Login to start using Task Prioritization.";
+
         response.json({ isError: false });
     } catch (error) {
         response.status(error.code || 500).json({
@@ -97,7 +111,7 @@ router.post("/login", async (request, response) => {
             );
         }
 
-        request.session.user = { user };
+        request.session.user = user;
 
         request.app.locals.isUserAuthenticated = true;
 
@@ -122,6 +136,80 @@ router.get("/logout", async (request, response) => {
     response.redirect("/users");
 });
 
+//change password form
+router.get("/changePassword", async (request, response) => {
+    if (!request.session.user) {
+        return response.redirect("/");
+    }
+
+    const passwordUpdatedFlashMessage = request.app.locals.isPasswordUpdated
+        ? request.app.locals.passwordUpdatedFlashMessage
+        : false;
+
+    request.app.locals.isPasswordUpdated = undefined;
+    request.app.locals.passwordUpdatedFlashMessage = undefined;
+
+    response.render("users/change-password", {
+        pageTitle: "Change Password",
+        passwordUpdatedFlashMessage: passwordUpdatedFlashMessage,
+    });
+});
+
+//change password submit
+router.put("/changePassword", async (request, response) => {
+    if (!request.session.user) {
+        return response.redirect("/");
+    }
+
+    try {
+        const requestPostData = request.body;
+
+        validateChangePasswordTotalArguments(
+            Object.keys(requestPostData).length
+        );
+
+        const currentPassword = validatePassword(
+            xss(requestPostData.currentPassword)
+        );
+        const newPassword = validatePassword(xss(requestPostData.newPassword));
+        const confirmPassword = validatePassword(
+            xss(requestPostData.confirmPassword)
+        );
+
+        if (newPassword !== confirmPassword) {
+            throwError(
+                ErrorCode.BAD_REQUEST,
+                "Error: Confirm password does not match new password."
+            );
+        }
+
+        const password = await usersData.updatePassword(
+            request.session.user._id,
+            currentPassword,
+            newPassword,
+            confirmPassword
+        );
+
+        if (!password.passwordUpdated) {
+            throwError(
+                ErrorCode.INTERNAL_SERVER_ERROR,
+                "Internal Server Error"
+            );
+        }
+
+        request.app.locals.isPasswordUpdated = true;
+        request.app.locals.passwordUpdatedFlashMessage =
+            "Your password has been changed successfully.";
+
+        response.json({ isError: false });
+    } catch (error) {
+        response.status(error.code || 500).json({
+            isError: true,
+            error: error.message || "Error: Internal server error.",
+        });
+    }
+});
+
 //All validations
 const validateSignUpTotalFields = (totalFields) => {
     const TOTAL_MANDATORY_FIELDS = 5;
@@ -133,6 +221,17 @@ const validateSignUpTotalFields = (totalFields) => {
 
 const validateLoginTotalArguments = (totalArguments) => {
     const TOTAL_MANDATORY_ARGUMENTS = 2;
+
+    if (totalArguments !== TOTAL_MANDATORY_ARGUMENTS) {
+        throwError(
+            ErrorCode.BAD_REQUEST,
+            "Error: All fields need to have valid values."
+        );
+    }
+};
+
+const validateChangePasswordTotalArguments = (totalArguments) => {
+    const TOTAL_MANDATORY_ARGUMENTS = 3;
 
     if (totalArguments !== TOTAL_MANDATORY_ARGUMENTS) {
         throwError(

@@ -53,15 +53,6 @@
         submitSignUpForm(user);
     });
 
-    $(document).on("click", "button#show-password", function () {
-        $("#password").attr(
-            "type",
-            $("#password").attr("type") === "password" ? "text" : "password"
-        );
-
-        $(this).html($(this).html() === "Show" ? "Hide" : "Show");
-    });
-
     function submitSignUpForm(user) {
         $.ajax({
             url: "/users/signup",
@@ -217,5 +208,87 @@
         }
 
         return true;
+    }
+
+    $(document).on("click", "button.show-password", function () {
+        const passwordInput = $(this).prev("input");
+
+        $(passwordInput).attr(
+            "type",
+            $(passwordInput).attr("type") === "password" ? "text" : "password"
+        );
+
+        $(this).html($(this).html() === "Show" ? "Hide" : "Show");
+    });
+
+    $(document).on("submit", "form#change-password-form", function (event) {
+        event.preventDefault();
+
+        hasErrors = false;
+
+        $("#error-message").addClass("d-none");
+
+        const currentPassword = $("#currentPassword");
+        const newPassword = $("#newPassword");
+        const confirmPassword = $("#confirmPassword");
+
+        const user = {
+            currentPassword: currentPassword.val().trim(),
+            newPassword: newPassword.val().trim(),
+            confirmPassword: confirmPassword.val().trim(),
+        };
+
+        $("input").removeClass("is-invalid is-valid");
+
+        validPassword(user.currentPassword)
+            ? currentPassword.addClass("is-valid")
+            : currentPassword.addClass("is-invalid");
+
+        validPassword(user.newPassword)
+            ? newPassword.addClass("is-valid")
+            : newPassword.addClass("is-invalid");
+
+        validPassword(user.confirmPassword)
+            ? confirmPassword.addClass("is-valid")
+            : confirmPassword.addClass("is-invalid");
+
+        if (user.newPassword !== user.confirmPassword) {
+            hasErrors = true;
+            $("#error-message").html(
+                "Error: Confirm password does not match new password."
+            );
+            $("#error-message").removeClass("d-none");
+        } else {
+            $("#error-message").html("");
+            $("#error-message").addClass("d-none");
+        }
+
+        if (hasErrors) {
+            return;
+        }
+
+        submitChangePasswordForm(user);
+    });
+
+    function submitChangePasswordForm(user) {
+        $.ajax({
+            url: "/users/changePassword",
+            method: "PUT",
+            contentType: "application/json",
+            data: JSON.stringify(user),
+            beforeSend: function () {
+                $("#loader-container").removeClass("d-none");
+            },
+            success: function () {
+                window.location.href = "/users/changePassword";
+            },
+            complete: function () {
+                $("#loader-container").addClass("d-none");
+            },
+            error: function (data) {
+                $("#error-message").html(data.responseJSON.error);
+                $("#error-message").removeClass("d-none");
+            },
+        });
     }
 })(jQuery);
