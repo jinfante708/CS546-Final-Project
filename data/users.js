@@ -98,6 +98,18 @@ async function get(_userId) {
     }
 }
 
+async function getAll() {
+    try {
+        const usersCollection = await users();
+
+        const usersList = await usersCollection.find({}).toArray();
+
+        return usersList;
+    } catch (error) {
+        throwCatchError(error);
+    }
+}
+
 async function checkUser(_email, _password) {
     try {
         validateCheckUserTotalArguments(arguments.length);
@@ -457,6 +469,7 @@ const throwCatchError = (error) => {
 module.exports = {
     create,
     get,
+    getAll,
     checkUser,
     updatePassword,
     updateProfile,

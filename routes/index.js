@@ -4,7 +4,7 @@ const usersRoutes = require("./users");
 const path = require("path");
 
 const constructorMethod = (app) => {
-    app.use("/taskslists", tasklistsRoutes);
+    app.use("/tasklists", tasklistsRoutes);
     app.use("/tasks", tasksRoutes);
     app.use("/users", usersRoutes);
     app.get("/", (request, response) => {
