@@ -166,7 +166,7 @@ async function getUserStatistics(_userId) {
       notCompleted = notCompleted
     }
 
-    return userStatistics
+    return userStatistics;
   }
   try {
   } catch (error) {
@@ -376,5 +376,6 @@ module.exports = {
   create,
   get,
   getAll,
+  getUserStatistics,
   checkUser,
 };
