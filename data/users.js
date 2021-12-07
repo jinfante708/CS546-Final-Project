@@ -49,7 +49,7 @@ async function create(_firstName, _lastName, _email, _dateOfBirth, _password) {
             dateOfBirth: dateOfBirth,
             password: passwordHash,
             dateOfCreation: moment().format("MM/DD/YYYY"),
-            taskList: [],
+            taskLists: [],
         };
 
         const insertedInfo = await usersCollection.insertOne(newUser);
