@@ -169,7 +169,7 @@ router.get("/profile", async (request, response) => {
 });
 
 //update profile page
-router.get("/profile", async (request, response) => {
+router.get("/update-profile", async (request, response) => {
   if (!request.session.user) {
     return response.redirect("/");
   }
