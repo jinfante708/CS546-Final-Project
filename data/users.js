@@ -159,7 +159,7 @@ async function getUserStatistics(_userId) {
         notCompletedOnTime += 1;
       }
     } else {
-      notCompleted;
+      notCompleted += 1;
     }
 
     let userStatistics = {
