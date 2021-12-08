@@ -51,9 +51,9 @@ $(document).ready(function () {
     submitBtn.prop("disabled", true);
     errors.hide();
 
-    name.removeClass("is-invalid is-valid");
-    importance.removeClass("is-invalid is-valid");
-    deadlineDate.removeClass("is-invalid is-valid");
+    firstName.removeClass("is-invalid is-valid");
+    lastName.removeClass("is-invalid is-valid");
+    dateOfBirth.removeClass("is-invalid is-valid");
 
     let userInfo = {
       firstName: firstName.val().trim(),
