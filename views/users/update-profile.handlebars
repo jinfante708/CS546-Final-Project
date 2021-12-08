@@ -1,0 +1,41 @@
+{{!-- Fields to be edited by user: First Name, Last Name, Date of Birth --}}
+<h1>Edit your profile</h1>
+{{!-- Remove action and method attribute since we're using AJAX here --}}
+<form id="edit-user-profile" class="needs-validation" novalidate>
+    <div class="form-group">
+        <label for="first-name-input">First Name</label>
+        <input type="text" id="first-name-input" name="firstName" placeholder="First Name" value={{user.firstName}}>
+        <div class="valid-feedback">
+            Looks good!
+        </div>
+        <div class="invalid-feedback">
+            Please provide a first name
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="last-name-input">Last Name</label>
+        <input type="number" id="last-name-input" name="lastName" placeholder="Last Name" value={{user.lastName}}>
+        <div class="valid-feedback">
+            Looks good!
+        </div>
+        <div class="invalid-feedback">
+            Please provide a last name
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="dateOfBirth-input">Date of Birth</label>
+        <input type="text" id="dateOfBirth-input" name="dateOfBirth" placeholder="Date of Birth" value={{user.dateOfBirth}}>
+        <div class="valid-feedback">
+            Looks good!
+        </div>
+        <div class="invalid-feedback">
+            Please provide a valid date in MM/DD/YYYY format
+        </div>
+    </div>
+
+    <button type="submit" id="submitButton" name="submitButton">Save Profile</button>
+</form>
+<script type="text/JavaScript" src="https://momentjs.com/downloads/moment.js"></script>
+<script src="/public/js/editProfile.js"></script>
