@@ -89,6 +89,9 @@ $(document).ready(function () {
         url: `/users/profile`,
         contentType: "application/json",
         data: JSON.stringify(userInfo),
+        success: function () {
+          window.location.href = "/users/profile";
+        },
       };
 
       $.ajax(requestConfig).then(function (responseMessage) {

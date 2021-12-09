@@ -159,6 +159,13 @@ router.get("/profile", async (request, response) => {
   try {
     userStatistics = await usersData.getUserStatistics(user._id);
 
+    if (Object.keys(userStatistics).length === 0) {
+      throwError(
+        ErrorCode.BAD_REQUEST,
+        "Error: User Statistics were not generated."
+      );
+    }
+
     response.render("users/profile", {
       pageTitle: "Profile",
       user: user,

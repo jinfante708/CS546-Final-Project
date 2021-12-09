@@ -118,59 +118,59 @@ async function getUserStatistics(_userId) {
     - Number of tasks completed overall
     - Number of tasks not completed overall
   */
-  validateGetTotalArguments(arguments.length);
-
-  const userId = validateUserId(_userId);
-
-  const tasklistsCollection = await tasklists();
-
-  const tasklists = tasklistsCollection.find({ userId: userId }).toArray();
-  const numTasklists = tasklists.length;
-
-  const tasksCollection = await tasks();
-  const tasks = tasksCollection.find({ userId: userId }).toArray();
-  const numTasks = tasks.length;
-
-  let completedOnTime;
-  let notCompletedOnTime;
-  let completed;
-  let notCompleted;
-
-  for (let task of tasks) {
-    let deadlineDate = task.deadlineDate;
-    let completionDate = task.completionDate;
-    // Converting both to MM/DD/YYYY format just in case
-    let deadline = moment(Date.parse(deadlineDate)).format("MM/DD/YYYY");
-    let completion = moment(Date.parse(completionDate)).format("MM/DD/YYYY");
-    let isCompleted = task.isCompleted;
-
-    if (isCompleted) {
-      completed += 1;
-
-      let doneOnTime = moment(Date.parse(completion)).isBefore(
-        Date.parse(deadline)
-      );
-      if (doneOnTime) {
-        completedOnTime += 1;
-      } else {
-        notCompletedOnTime += 1;
-      }
-    } else {
-      notCompleted += 1;
-    }
-
-    let userStatistics = {
-      numTasklists: numTasklists,
-      numTasks: numTasks,
-      completedOnTime: completedOnTime,
-      notCompletedOnTime: notCompletedOnTime,
-      completed: completed,
-      notCompleted: notCompleted,
-    };
-
-    return userStatistics;
-  }
   try {
+    validateGetTotalArguments(arguments.length);
+
+    const userId = validateUserId(_userId);
+
+    const tasklistsCollection = await tasklists();
+
+    const tasklists = tasklistsCollection.find({ userId: userId }).toArray();
+    const numTasklists = tasklists.length;
+
+    const tasksCollection = await tasks();
+    const tasks = tasksCollection.find({ userId: userId }).toArray();
+    const numTasks = tasks.length;
+
+    let completedOnTime = 0;
+    let notCompletedOnTime = 0;
+    let completed = 0;
+    let notCompleted = 0;
+
+    for (let task of tasks) {
+      let deadlineDate = task.deadlineDate;
+      let completionDate = task.completionDate;
+      // Converting both to MM/DD/YYYY format just in case
+      let deadline = moment(Date.parse(deadlineDate)).format("MM/DD/YYYY");
+      let completion = moment(Date.parse(completionDate)).format("MM/DD/YYYY");
+      let isCompleted = task.isCompleted;
+
+      if (isCompleted) {
+        completed += 1;
+
+        let doneOnTime = moment(Date.parse(completion)).isBefore(
+          Date.parse(deadline)
+        );
+        if (doneOnTime) {
+          completedOnTime += 1;
+        } else {
+          notCompletedOnTime += 1;
+        }
+      } else {
+        notCompleted += 1;
+      }
+
+      let userStatistics = {
+        numTasklists: numTasklists,
+        numTasks: numTasks,
+        completedOnTime: completedOnTime,
+        notCompletedOnTime: notCompletedOnTime,
+        completed: completed,
+        notCompleted: notCompleted,
+      };
+
+      return userStatistics;
+    }
   } catch (error) {
     throwCatchError(error);
   }
