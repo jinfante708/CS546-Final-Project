@@ -1,0 +1,26 @@
+<div class="card text-center">
+    <div class="card-header">
+        User Profile
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">{{user.firstName}} {{user.lastName}}</h5>
+        <p class="card-text">{{user.email}}</p>
+        <p class="card-text">{{user.dateOfBirth}}</p>
+        <a href="/users/update-profile">Edit Profile</a>
+    </div>
+</div>
+
+<div class="card text-center">
+    <div class="card-header">
+        User Statistics
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">Statistics</h5>
+        <p class="card-text">Total Number of Tasklists: {{userStatistics.numTasklists}}</p>
+        <p class="card-text">Total Number of Tasks: {{userStatistics.numTasks}}</p>
+        <p class="card-text">Number of Tasks Completed: {{userStatistics.completed}}</p>
+        <p class="card-text">Number of Tasks Uncompleted: {{userStatistics.uncompleted}}</p>
+        <p class="card-text">Number of Tasks Completed On Time: {{userStatistics.completedOnTime}}</p>
+        <p class="card-text">Number of Tasks Not Completed On Time: {{userStatistics.notCompletedOnTime}}</p>
+    </div>
+</div>
