@@ -1,6 +1,7 @@
 const mongoCollections = require('../config/mongoCollections');
 const taskLists = mongoCollections.tasklists;
 const {ObjectId} = require('mongodb');
+const userData = require('./users')
 
 const verify = require ('./verify');
 
@@ -39,6 +40,10 @@ async function create(listName){
     const id = insertInfo.insertedId;
 
     const taskList = await this.get(id);
+
+
+    // trigger the function to add this list to the corresponding user
+
 
     return taskList;
 }
@@ -127,6 +132,16 @@ async function remove(id){
     return await this.get(id);
 }
 
+
+async function addTask(listId, taskID){
+
+    const targetList = await this.get(listId);
+
+    targetList.tasks.push(taskID);
+
+    // probably need to sort based on priority score here
+}
+
 const today = new Date();//https://stackoverflow.com/questions/1531093/how-do-i-get-the-current-date-in-javascript
 // let year = today.getFullYear().toString();
 // let month = today.getMonth().toString();
@@ -153,5 +168,6 @@ module.exports = {
     getAll,
     get,
     update,
-    remove
+    remove,
+    addTask
 }
