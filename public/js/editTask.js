@@ -49,6 +49,7 @@ $(document).ready(function () {
     deadlineDate.removeClass("is-invalid is-valid");
 
     let taskInfo = {
+      _id: id.val(),
       name: name.val().trim(),
       importance: importance.val().trim(),
       deadlineDate: deadlineDate.val().trim(),
@@ -87,13 +88,14 @@ $(document).ready(function () {
     if (!hasErrors) {
       var requestConfig = {
         method: "PUT",
-        url: `/tasks/${id}`,
+        url: `/tasks/${taskInfo._id}`,
         contentType: "application/json",
         data: JSON.stringify(taskInfo),
       };
 
       $.ajax(requestConfig).then(function (responseMessage) {
         console.log(responseMessage);
+        window.location.href = "/tasks";
       });
     } else {
       submitBtn.prop("disabled", false);
