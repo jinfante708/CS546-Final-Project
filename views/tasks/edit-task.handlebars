@@ -6,15 +6,16 @@
       the form validation APIs in JavaScript 
 --}}
 {{!-- Remove action and method attribute since we're using AJAX here --}}
-<form id="edit-task-form" class="needs-validation" novalidate>
+<form id="edit-task-form" action="/tasks/{{task._id}}" method="PUT" class="needs-validation" novalidate>
     <div class="form-group">
         <label for="task-id">Task ID</label>
-        <input type="text" id="task-id" name="task-id" placeholder="Task ID" value={{_id}} readonly>
+        <input type="text" id="task-id" name="task-id" placeholder="Task ID" value={{task._id}} readonly>
     </div>
 
     <div class="form-group">
         <label for="task-name-input">Name</label>
         <input type="text" id="task-name-input" name="task-name" placeholder="Task Name" value={{name}}>
+
         <div class="valid-feedback">
             Looks good!
         </div>
@@ -44,7 +45,8 @@
             Please provide a valid date in MM/DD/YYYY format
         </div>
     </div>
-
+     
+     
     <button type="submit" id="submitButton" name="submitButton">Submit Edited Task</button>
 
     {{!-- Will use bootstrap for error validation so the request should never reach

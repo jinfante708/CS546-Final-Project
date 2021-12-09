@@ -135,4 +135,5 @@ module.exports = {
   validNumber,
   validFormNumber,
   convertId,
+  validDate
 };
