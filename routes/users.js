@@ -1,7 +1,8 @@
 const express = require("express");
 const data = require("../data");
 const validator = require("validator");
-const verify = require("./verify");
+const xss = require("xss");
+const verify = require("../data/verify");
 
 const usersData = data.users;
 const router = express.Router();
@@ -14,44 +15,50 @@ const ErrorCode = {
 
 //login form
 router.get("/", async (request, response) => {
-    redirectIfLoggedIn(request, response, "/");
+    if (request.session.user) {
+        return response.redirect("/");
+    }
 
-    response.render("users/login", { pageTitle: "Login" });
+    const signedUpFlashMessage = request.app.locals.isSignedUp
+        ? request.app.locals.signedUpFlashMessage
+        : false;
+
+    request.app.locals.isSignedUp = undefined;
+    request.app.locals.signedUpFlashMessage = undefined;
+
+    response.render("users/login", {
+        pageTitle: "Login",
+        signedUpFlashMessage: signedUpFlashMessage,
+    });
 });
 
 //signup form
 router.get("/signup", async (request, response) => {
-    redirectIfLoggedIn(request, response, "/");
+    if (request.session.user) {
+        return response.redirect("/");
+    }
 
     response.render("users/sign-up", { pageTitle: "Sign-up" });
 });
 
 //signup submit
 router.post("/signup", async (request, response) => {
-    redirectIfLoggedIn(request, response, "/");
-
-    let displayFirstName,
-        displayLastName,
-        displayEmail,
-        displayDateOfBirth,
-        displayPassword;
+    if (request.session.user) {
+        return response.redirect("/");
+    }
 
     try {
         const requestPostData = request.body;
 
-        displayFirstName = requestPostData.firstName;
-        displayLastName = requestPostData.lastName;
-        displayEmail = requestPostData.email;
-        displayDateOfBirth = requestPostData.dateOfBirth;
-        displayPassword = requestPostData.password;
-
         validateSignUpTotalFields(Object.keys(requestPostData).length);
 
-        const firstName = validateFirstName(requestPostData.firstName);
-        const lastName = validateLastName(requestPostData.lastName);
-        const email = validateEmail(requestPostData.email);
-        const dateOfBirth = validateDateOfBirth(requestPostData.dateOfBirth);
-        const password = validatePassword(requestPostData.password);
+        const firstName = validateFirstName(xss(requestPostData.firstName));
+        const lastName = validateLastName(xss(requestPostData.lastName));
+        const email = validateEmail(xss(requestPostData.email));
+        const dateOfBirth = validateDateOfBirth(
+            xss(requestPostData.dateOfBirth)
+        );
+        const password = validatePassword(xss(requestPostData.password));
 
         const user = await usersData.create(
             firstName,
@@ -68,39 +75,32 @@ router.post("/signup", async (request, response) => {
             );
         }
 
-        //change this after UI
-        response.redirect("/");
+        request.app.locals.isSignedUp = true;
+        request.app.locals.signedUpFlashMessage =
+            "Signed up successfully. Login to start using Task Prioritization.";
+
+        response.json({ isError: false });
     } catch (error) {
-        response
-            .status(error.code || ErrorCode.INTERNAL_SERVER_ERROR)
-            .render("users/sign-up", {
-                pageTitle: "Sign-up",
-                firstName: displayFirstName,
-                lastName: displayLastName,
-                email: displayEmail,
-                dateOfBirth: displayDateOfBirth,
-                password: displayPassword,
-                error: error.message || "Internal server error",
-            });
+        response.status(error.code || 500).json({
+            isError: true,
+            error: error.message || "Error: Internal server error.",
+        });
     }
 });
 
 //login submit
 router.post("/login", async (request, response) => {
-    redirectIfLoggedIn(request, response, "/");
-
-    let displayEmail, displayPassword;
+    if (request.session.user) {
+        return response.redirect("/");
+    }
 
     try {
         const requestPostData = request.body;
 
-        displayEmail = requestPostData.email;
-        displayPassword = requestPostData.password;
-
         validateLoginTotalArguments(Object.keys(requestPostData).length);
 
-        const email = validateEmail(requestPostData.email);
-        const password = validatePassword(requestPostData.password);
+        const email = validateEmail(xss(requestPostData.email));
+        const password = validatePassword(xss(requestPostData.password));
 
         const user = await usersData.checkUser(email, password);
 
@@ -111,19 +111,16 @@ router.post("/login", async (request, response) => {
             );
         }
 
-        request.session.user = { user };
+        request.session.user = user;
 
-        //change this after UI
-        response.redirect("/private");
+        request.app.locals.isUserAuthenticated = true;
+
+        response.json({ isError: false });
     } catch (error) {
-        response
-            .status(error.code || ErrorCode.INTERNAL_SERVER_ERROR)
-            .render("users/login", {
-                pageTitle: "Login",
-                email: displayEmail,
-                password: displayPassword,
-                error: error.message || "Internal Server Error",
-            });
+        response.status(error.code || 500).json({
+            isError: true,
+            error: error.message || "Error: Internal server error.",
+        });
     }
 });
 
@@ -133,9 +130,128 @@ router.get("/logout", async (request, response) => {
 
     if (user) {
         request.session.destroy();
+        request.app.locals.isUserAuthenticated = false;
     }
 
-    response.redirect("/");
+    response.redirect("/users");
+});
+
+//change password form
+router.get("/changePassword", async (request, response) => {
+    if (!request.session.user) {
+        return response.redirect("/");
+    }
+
+    const passwordUpdatedFlashMessage = request.app.locals.isPasswordUpdated
+        ? request.app.locals.passwordUpdatedFlashMessage
+        : false;
+
+    request.app.locals.isPasswordUpdated = undefined;
+    request.app.locals.passwordUpdatedFlashMessage = undefined;
+
+    response.render("users/change-password", {
+        pageTitle: "Change Password",
+        passwordUpdatedFlashMessage: passwordUpdatedFlashMessage,
+    });
+});
+
+//change password submit
+router.put("/password", async (request, response) => {
+    if (!request.session.user) {
+        return response.redirect("/");
+    }
+
+    try {
+        const requestPostData = request.body;
+
+        validateChangePasswordTotalArguments(
+            Object.keys(requestPostData).length
+        );
+
+        const currentPassword = validatePassword(
+            xss(requestPostData.currentPassword)
+        );
+        const newPassword = validatePassword(xss(requestPostData.newPassword));
+        const confirmPassword = validatePassword(
+            xss(requestPostData.confirmPassword)
+        );
+
+        if (newPassword !== confirmPassword) {
+            throwError(
+                ErrorCode.BAD_REQUEST,
+                "Error: Confirm password does not match new password."
+            );
+        }
+
+        const password = await usersData.updatePassword(
+            request.session.user._id,
+            currentPassword,
+            newPassword,
+            confirmPassword
+        );
+
+        if (!password.passwordUpdated) {
+            throwError(
+                ErrorCode.INTERNAL_SERVER_ERROR,
+                "Internal Server Error"
+            );
+        }
+
+        request.app.locals.isPasswordUpdated = true;
+        request.app.locals.passwordUpdatedFlashMessage =
+            "Your password has been changed successfully.";
+
+        response.json({ isError: false });
+    } catch (error) {
+        response.status(error.code || 500).json({
+            isError: true,
+            error: error.message || "Error: Internal server error.",
+        });
+    }
+});
+
+router.put("/profile", async (request, response) => {
+    if (!request.session.user) {
+        return response.redirect("/");
+    }
+
+    try {
+        const requestPostData = request.body;
+
+        validateChangeProfileTotalArguments(
+            Object.keys(requestPostData).length
+        );
+
+        const firstName = validateFirstName(xss(requestPostData.firstName));
+        const lastName = validateLastName(xss(requestPostData.lastName));
+        const dateOfBirth = validateDateOfBirth(
+            xss(requestPostData.dateOfBirth)
+        );
+
+        const user = await usersData.updateProfile(
+            request.session.user._id,
+            firstName,
+            lastName,
+            dateOfBirth
+        );
+
+        if (!user.profileUpdated) {
+            throwError(
+                ErrorCode.INTERNAL_SERVER_ERROR,
+                "Internal Server Error"
+            );
+        }
+
+        //Change after UI
+        response.redirect("/");
+    } catch (error) {
+        response
+            .status(error.code || ErrorCode.INTERNAL_SERVER_ERROR)
+            .render("users/update-profile", {
+                pageTitle: "Update Profile",
+                error: error.message || "Internal server error",
+            });
+    }
 });
 
 //All validations
@@ -149,6 +265,28 @@ const validateSignUpTotalFields = (totalFields) => {
 
 const validateLoginTotalArguments = (totalArguments) => {
     const TOTAL_MANDATORY_ARGUMENTS = 2;
+
+    if (totalArguments !== TOTAL_MANDATORY_ARGUMENTS) {
+        throwError(
+            ErrorCode.BAD_REQUEST,
+            "Error: All fields need to have valid values."
+        );
+    }
+};
+
+const validateChangePasswordTotalArguments = (totalArguments) => {
+    const TOTAL_MANDATORY_ARGUMENTS = 3;
+
+    if (totalArguments !== TOTAL_MANDATORY_ARGUMENTS) {
+        throwError(
+            ErrorCode.BAD_REQUEST,
+            "Error: All fields need to have valid values."
+        );
+    }
+};
+
+const validateChangeProfileTotalArguments = (totalArguments) => {
+    const TOTAL_MANDATORY_ARGUMENTS = 3;
 
     if (totalArguments !== TOTAL_MANDATORY_ARGUMENTS) {
         throwError(
@@ -249,14 +387,6 @@ const validatePassword = (password) => {
 
 const throwError = (code = 500, message = "Internal Server Error") => {
     throw { code, message };
-};
-
-const redirectIfLoggedIn = (request, response, redirectTo = "/") => {
-    const user = request.session.user;
-
-    if (user) {
-        response.redirect(redirectTo);
-    }
 };
 
 module.exports = router;

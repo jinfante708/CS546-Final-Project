@@ -1,6 +1,7 @@
 const mongoCollections = require("../config/mongoCollections");
 const uuid = require("uuid");
 const validator = require("validator");
+const xss = require("xss");
 const verify = require("./verify");
 const bcryptjs = require("bcryptjs");
 const moment = require("moment");
@@ -19,11 +20,11 @@ async function create(_firstName, _lastName, _email, _dateOfBirth, _password) {
     try {
         validateCreateTotalArguments(arguments.length);
 
-        const firstName = validateFirstName(_firstName);
-        const lastName = validateLastName(_lastName);
-        const email = validateEmail(_email);
-        const dateOfBirth = validateDateOfBirth(_dateOfBirth);
-        const password = validatePassword(_password);
+        const firstName = validateFirstName(xss(_firstName));
+        const lastName = validateLastName(xss(_lastName));
+        const email = validateEmail(xss(_email));
+        const dateOfBirth = validateDateOfBirth(xss(_dateOfBirth));
+        const password = validatePassword(xss(_password));
 
         const usersCollection = await users();
 
@@ -48,6 +49,7 @@ async function create(_firstName, _lastName, _email, _dateOfBirth, _password) {
             dateOfBirth: dateOfBirth,
             password: passwordHash,
             dateOfCreation: moment().format("MM/DD/YYYY"),
+            taskLists: [],
         };
 
         const insertedInfo = await usersCollection.insertOne(newUser);
@@ -69,7 +71,7 @@ async function get(_userId) {
     try {
         validateGetTotalArguments(arguments.length);
 
-        const userId = validateUserId(_userId);
+        const userId = validateUserId(xss(_userId));
 
         const usersCollection = await users();
 
@@ -96,12 +98,24 @@ async function get(_userId) {
     }
 }
 
+async function getAll() {
+    try {
+        const usersCollection = await users();
+
+        const usersList = await usersCollection.find({}).toArray();
+
+        return usersList;
+    } catch (error) {
+        throwCatchError(error);
+    }
+}
+
 async function checkUser(_email, _password) {
     try {
         validateCheckUserTotalArguments(arguments.length);
 
-        const email = validateEmail(_email);
-        const password = validatePassword(_password);
+        const email = validateEmail(xss(_email));
+        const password = validatePassword(xss(_password));
 
         const usersCollection = await users();
 
@@ -146,6 +160,127 @@ async function checkUser(_email, _password) {
     }
 }
 
+async function updatePassword(
+    _userId,
+    _currentPassword,
+    _newPassword,
+    _confirmPassword
+) {
+    try {
+        validateUpdatePasswordTotalArguments(arguments.length);
+
+        const userId = validateUserId(xss(_userId));
+        const currentPassword = validatePassword(xss(_currentPassword));
+        const newPassword = validatePassword(xss(_newPassword));
+        const confirmPassword = validatePassword(xss(_confirmPassword));
+
+        if (newPassword !== confirmPassword) {
+            throwError(
+                ErrorCode.BAD_REQUEST,
+                "Error: Confirm password does not match new password."
+            );
+        }
+
+        const usersCollection = await users();
+
+        const user = await usersCollection.findOne(
+            { _id: userId },
+            {
+                projection: {
+                    _id: 1,
+                    password: 1,
+                },
+            }
+        );
+
+        if (!user) {
+            throwError(ErrorCode.NOT_FOUND, "Error: User not found.");
+        }
+
+        const isPasswordCorrect = await bcryptjs.compare(
+            currentPassword,
+            user.password
+        );
+
+        if (!isPasswordCorrect) {
+            throwError(
+                ErrorCode.BAD_REQUEST,
+                "Error: Incorrect current password."
+            );
+        }
+
+        const newPasswordHash = await bcryptjs.hash(newPassword, SALT_ROUNDS);
+
+        const toBeUpdated = {
+            password: newPasswordHash,
+        };
+
+        const updatedInfo = await usersCollection.updateOne(
+            { _id: userId },
+            { $set: toBeUpdated }
+        );
+
+        if (updatedInfo.modifiedCount !== 1) {
+            throwError(
+                ErrorCode.INTERNAL_SERVER_ERROR,
+                "Error: Could not update password."
+            );
+        }
+
+        return { passwordUpdated: true };
+    } catch (error) {
+        throwCatchError(error);
+    }
+}
+
+async function updateProfile(_userId, _firstName, _lastName, _dateOfBirth) {
+    try {
+        validateUpdateProfileTotalArguments(arguments.length);
+
+        const userId = validateUserId(xss(_userId));
+        const firstName = validateFirstName(xss(_firstName));
+        const lastName = validateLastName(xss(_lastName));
+        const dateOfBirth = validateDateOfBirth(xss(_dateOfBirth));
+
+        const usersCollection = await users();
+
+        const user = await usersCollection.findOne(
+            { _id: userId },
+            {
+                projection: {
+                    _id: 1,
+                },
+            }
+        );
+
+        if (!user) {
+            throwError(ErrorCode.NOT_FOUND, "Error: User not found.");
+        }
+
+        const toBeUpdated = {
+            firstName: firstName,
+            lastName: lastName,
+            dateOfBirth: dateOfBirth,
+        };
+
+        const updatedInfo = await usersCollection.updateOne(
+            { _id: userId },
+            { $set: toBeUpdated }
+        );
+
+        if (updatedInfo.modifiedCount !== 1) {
+            throwError(
+                ErrorCode.INTERNAL_SERVER_ERROR,
+                "Error: Could not update profile."
+            );
+        }
+
+        return { profileUpdated: true };
+    } catch (error) {
+        throwCatchError(error);
+    }
+}
+
 //All validations
 const validateCreateTotalArguments = (totalArguments) => {
     const TOTAL_MANDATORY_ARGUMENTS = 5;
@@ -171,6 +306,28 @@ const validateGetTotalArguments = (totalArguments) => {
 
 const validateCheckUserTotalArguments = (totalArguments) => {
     const TOTAL_MANDATORY_ARGUMENTS = 2;
+
+    if (totalArguments !== TOTAL_MANDATORY_ARGUMENTS) {
+        throwError(
+            ErrorCode.BAD_REQUEST,
+            "Error: All fields need to have valid values."
+        );
+    }
+};
+
+const validateUpdatePasswordTotalArguments = (totalArguments) => {
+    const TOTAL_MANDATORY_ARGUMENTS = 4;
+
+    if (totalArguments !== TOTAL_MANDATORY_ARGUMENTS) {
+        throwError(
+            ErrorCode.BAD_REQUEST,
+            "Error: All fields need to have valid values."
+        );
+    }
+};
+
+const validateUpdateProfileTotalArguments = (totalArguments) => {
+    const TOTAL_MANDATORY_ARGUMENTS = 4;
 
     if (totalArguments !== TOTAL_MANDATORY_ARGUMENTS) {
         throwError(
@@ -312,5 +469,8 @@ const throwCatchError = (error) => {
 module.exports = {
     create,
     get,
+    getAll,
     checkUser,
+    updatePassword,
+    updateProfile,
 };
