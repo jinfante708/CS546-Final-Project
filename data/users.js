@@ -85,6 +85,7 @@ async function get(_userId) {
           lastName: 1,
           email: 1,
           dateOfBirth: 1,
+          taskLists: 1,
         },
       }
     );
@@ -345,8 +346,8 @@ async function addTasklistToUser(_userId, _tasklistId) {
     const tasklistId = validateTasklistId(_tasklistId);
 
     // Check that user and tasklist exist
-    const user = await this.get(userId);
-    const tasklist = await tasklistsData.get(tasklistId);
+    // const user = await this.get(userId);
+    // const tasklist = await tasklistsData.get(tasklistId);
 
     const usersCollection = await users();
     const updatedUser = await usersCollection.updateOne(

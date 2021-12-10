@@ -21,8 +21,9 @@ router.get('/', async (req,res) =>{
 
         let filtered = [];
         for (let x  of AllTaskList){
-            if(x.isDeleted === false){
-                filtered.push(x);
+            let temp = await taskListsData.get(x);
+            if(temp.isDeleted === false){
+                filtered.push(temp);
             }
         }
 
@@ -103,12 +104,13 @@ router.post('/', async (req,res) =>{
 
         // res.status(200).json(newList);
 
-        let AllTaskList = await taskListsData.getAll();
+        let AllTaskList = await taskListsData.getAllForAUser(req.session.user._id);
 
         let filtered = [];
         for (let x  of AllTaskList){
-            if(x.isDeleted === false){
-                filtered.push(x);
+            let temp = await taskListsData.get(x);
+            if(temp.isDeleted === false){
+                filtered.push(temp);
             }
         }
 
