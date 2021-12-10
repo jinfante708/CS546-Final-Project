@@ -7,8 +7,8 @@ const bcryptjs = require("bcryptjs");
 const moment = require("moment");
 
 const users = mongoCollections.users;
-const tasklists = mongoCollections.tasklists;
-const tasks = mongoCollections.tasks;
+const tasklistsCol = mongoCollections.tasklists;
+const tasksCol = mongoCollections.tasks;
 
 const ErrorCode = {
   BAD_REQUEST: 400,
@@ -123,12 +123,12 @@ async function getUserStatistics(_userId) {
 
     const userId = validateUserId(_userId);
 
-    const tasklistsCollection = await tasklists();
+    const tasklistsCollection = await tasklistsCol();
 
     const tasklists = tasklistsCollection.find({ userId: userId }).toArray();
     const numTasklists = tasklists.length;
 
-    const tasksCollection = await tasks();
+    const tasksCollection = await tasksCol();
     const tasks = tasksCollection.find({ userId: userId }).toArray();
     const numTasks = tasks.length;
 
