@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const data = require('../data');
 const taskListsData = data.tasklists;
+const taskData = data.tasks;
 
 router.get('/', async (req,res) =>{
     try{
@@ -37,7 +38,9 @@ router.get('/upcoming', async (req, res)=>{
         let AllFirstTasks = [];
         for (let y of filtered){
             if(y.tasks.length > 0){
-                AllFirstTasks.push(y.tasks[0]);
+
+                let task = await taskData.get(y.tasks[0]);
+                AllFirstTasks.push(task.name);
             }
             else{
                 AllFirstTasks.push("N/A");
@@ -78,6 +81,8 @@ router.post('/', async (req,res) =>{
 
     try{
         const newList = await taskListsData.create(listInfo.listName);
+
+        
 
         res.status(200).json(newList);
     }
