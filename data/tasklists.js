@@ -1,7 +1,8 @@
 const mongoCollections = require('../config/mongoCollections');
 const taskLists = mongoCollections.tasklists;
 const {ObjectId} = require('mongodb');
-const userData = require('./users')
+const userData = require('./users');
+const taskData = require('./tasks');
 
 const verify = require ('./verify');
 
@@ -132,6 +133,19 @@ async function remove(id){
     return await this.get(id);
 }
 
+function compare(a, b) {
+    // Use toUpperCase() to ignore character casing
+    const A = a.priority
+    const B = b.priority
+  
+    let comparison = 0;
+    if (A > B) {
+      comparison = -1;
+    } else if (A < B) {
+      comparison = 1;
+    }
+    return comparison;
+}
 
 async function addTask(listId, taskID){
 
@@ -139,7 +153,24 @@ async function addTask(listId, taskID){
 
     targetList.tasks.push(taskID);
 
+
     // probably need to sort based on priority score here
+
+    let sortedList = targetList.tasks.sort(compare);
+
+    return await this.update(listId, targetList.listName, sortedList, targetList.isDeleted, targetList.dateOfDeletion);
+
+    
+}
+
+
+
+async function addListToUser(listId, userId){
+    const user = await userData.get(userId);
+
+    user.taskLsits.push(listId);
+    
+    
 }
 
 const today = new Date();//https://stackoverflow.com/questions/1531093/how-do-i-get-the-current-date-in-javascript
