@@ -1,4 +1,5 @@
-$(document).ready(function () {
+(function ($) {
+  $(document).ready(function () {
   let hasErrors = false;
 
   function validString(str) {
@@ -85,9 +86,34 @@ $(document).ready(function () {
 
     if (!hasErrors) {
       // unbind() is deprecated, use .off() instead
-      form.off().submit();
+      //form.off().submit();
+      submitnewtaskform(taskInfo);
     } else {
       submitBtn.prop("disabled", false);
     }
   });
 });
+
+function submitnewtaskform(taskInfo) {
+  $.ajax({
+      url: '/tasks',
+      method: "POST",
+      contentType: "application/json",
+      data: JSON.stringify(taskInfo),
+      beforeSend: function () {
+          $("#loader-container").removeClass("d-none");
+      },
+      success: function () {
+          window.location.href = "/tasks";
+      },
+      complete: function () {
+          $("#loader-container").addClass("d-none");
+      },
+      error: function (data) {
+          $("#error-message").html(data.responseJSON.error);
+          $("#error-message").removeClass("d-none");
+      },
+  });
+}
+
+})(jQuery);

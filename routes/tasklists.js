@@ -46,7 +46,7 @@ router.get('/upcoming', async (req, res)=>{
             
         }
 
-        res.status(200).render('tasklists/upcoming', {pageTitle: "Upcoming tasks", firstTasks:AllFirstTasks});
+        res.status(200).render('tasklists/upcoming', {pageTitle: "Upcoming tasks", firstTasks: AllFirstTasks});
     }
     catch(e){
         res.status(500).json({error: e});
