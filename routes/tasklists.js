@@ -47,7 +47,7 @@ router.get('/upcoming', async (req, res)=>{
         return;
     }
 
-    
+
     try{
         // let AllTaskList = await taskListsData.getAll();
 
@@ -166,7 +166,7 @@ router.put('/:id', async  (req,res)=>{
     }
 
     if(! listInfo.listName){
-        res.status(400).json({error: 'you must provide a lsit name'});
+        res.status(400).json({error: 'you must provide a list name'});
         return;
     }
 
