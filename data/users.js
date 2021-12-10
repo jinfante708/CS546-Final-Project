@@ -138,6 +138,11 @@ async function getUserStatistics(_userId) {
     let notCompleted = 0;
 
     for (let task of tasks) {
+      let isDeleted = task.isDeleted;
+      if (isDeleted) {
+        continue;
+      }
+
       let deadlineDate = task.deadlineDate;
       let completionDate = task.completionDate;
       // Converting both to MM/DD/YYYY format just in case
