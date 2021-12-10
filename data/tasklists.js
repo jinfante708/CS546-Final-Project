@@ -42,7 +42,7 @@ async function create(listName){
 
     const taskList = await this.get(id);
 
-
+    
     // trigger the function to add this list to the corresponding user
 
 
@@ -165,13 +165,7 @@ async function addTask(listId, taskID){
 
 
 
-async function addListToUser(listId, userId){
-    const user = await userData.get(userId);
 
-    user.taskLsits.push(listId);
-    
-    
-}
 
 const today = new Date();//https://stackoverflow.com/questions/1531093/how-do-i-get-the-current-date-in-javascript
 // let year = today.getFullYear().toString();
