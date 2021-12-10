@@ -9,7 +9,9 @@ router.get('/', async (req,res) =>{
 
 
     if(!req.session.user){
-        res.status(400).json({error: 'user does not exists.'});
+        // should just redirect to homepage.
+        // res.status(400).json({error: 'user does not exists.'});
+        res.redirect('/');
         return;
     }
 
@@ -37,13 +39,25 @@ router.get('/', async (req,res) =>{
 
 
 router.get('/upcoming', async (req, res)=>{
+
+    if(!req.session.user){
+        // should just redirect to homepage.
+        // res.status(400).json({error: 'user does not exists.'});
+        res.redirect('/');
+        return;
+    }
+
+    
     try{
-        let AllTaskList = await taskListsData.getAll();
+        // let AllTaskList = await taskListsData.getAll();
+
+        let AllTaskList = await taskListsData.getAllForAUser(req.session.user._id);
 
         let filtered = [];
         for (let x  of AllTaskList){
-            if(x.isDeleted === false){
-                filtered.push(x);
+            let temp = await taskListsData.get(x);
+            if(temp.isDeleted === false){
+                filtered.push(temp);
             }
         }
 
@@ -61,7 +75,18 @@ router.get('/upcoming', async (req, res)=>{
             
         }
 
-        res.status(200).render('tasklists/upcoming', {pageTitle: "Upcoming tasks", firstTasks: AllFirstTasks});
+        let result = [];
+
+        for (let i = 0; i < filtered.length; i ++){
+            let temp = {
+                listName: filtered[i].listName,
+                firstTask: AllFirstTasks[i]
+            }
+
+            result.push(temp);
+        }
+
+        res.status(200).render('tasklists/upcoming', {pageTitle: "Upcoming tasks", firstTasks: result});
     }
     catch(e){
         res.status(500).json({error: e});
@@ -71,8 +96,11 @@ router.get('/upcoming', async (req, res)=>{
 router.get('/:id', async (req, res) =>{
 
     try{
-        let targetList = await taskListsData.get(req.params.id);
-        res.status(200).json(targetList);
+        // let targetList = await taskListsData.get(req.params.id);
+        // res.status(200).json(targetList);
+
+        // should return all the tasks from this list.
+
     }
     catch(e){
         res.status(404).json({error: e});
@@ -93,12 +121,13 @@ router.post('/', async (req,res) =>{
     }
 
     if(!req.session.user){
-        res.status(400).json({error: 'user does not exists.'});
+        // res.status(400).json({error: 'user does not exists.'});
+        res.redirect('/');
         return;
     }
 
     try{
-        const newList = await taskListsData.create(listInfo.listName);
+        const newList = await taskListsData.create(listInfo.listName, req.session.user._id);
 
         const addToUser = await userData.addTasklistToUser(req.session.user._id, newList._id)
 
