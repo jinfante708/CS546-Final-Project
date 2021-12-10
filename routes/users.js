@@ -153,10 +153,11 @@ router.get("/profile", async (request, response) => {
     return response.redirect("/");
   }
 
-  let user = request.session.user;
+  let user;
   let userStatistics;
 
   try {
+    user = await usersData.get(request.session.user._id);
     userStatistics = await usersData.getUserStatistics(user._id);
 
     if (Object.keys(userStatistics).length === 0) {
@@ -196,12 +197,23 @@ router.get("/update-profile", async (request, response) => {
     return response.redirect("/");
   }
 
-  let user = request.session.user;
-
-  response.render("users/update-profile", {
-    pageTitle: "Update Profile",
-    user: user,
-  });
+  let user;
+  try {
+    user = await usersData.get(request.session.user._id);
+    console.log(user);
+    response.render("users/update-profile", {
+      pageTitle: "Update Profile",
+      user: user,
+    });
+  } catch (error) {
+    response
+      .status(error.code || ErrorCode.INTERNAL_SERVER_ERROR)
+      .render("users/update-profile", {
+        pageTitle: "Update profile",
+        user: user,
+        error: error.message || "Internal Server Error",
+      });
+  }
 });
 
 //change password submit
