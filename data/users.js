@@ -7,8 +7,8 @@ const bcryptjs = require("bcryptjs");
 const moment = require("moment");
 
 const users = mongoCollections.users;
-const tasklists = mongoCollections.tasklists;
-const tasks = mongoCollections.tasks;
+const tasklistsCol = mongoCollections.tasklists;
+const tasksCol = mongoCollections.tasks;
 
 const tasklistsData = require("./tasklists");
 
@@ -124,58 +124,48 @@ async function getUserStatistics(_userId) {
     - Number of tasks completed overall
     - Number of tasks not completed overall
   */
-    try {
-        validateGetTotalArguments(arguments.length);
+  try {
+    validateGetTotalArguments(arguments.length);
 
-        const userId = validateUserId(_userId);
+    const userId = validateUserId(_userId);
 
-        const tasklistsCollection = await tasklists();
+    const tasklistsCollection = await tasklistsCol();
 
-        const tasklists = tasklistsCollection
-            .find({ userId: userId })
-            .toArray();
-        const numTasklists = tasklists.length;
+    const tasklists = tasklistsCollection.find({ userId: userId }).toArray();
+    const numTasklists = tasklists.length;
 
-        const tasksCollection = await tasks();
-        const tasks = tasksCollection.find({ userId: userId }).toArray();
-        const numTasks = tasks.length;
+    const tasksCollection = await tasksCol();
+    const tasks = tasksCollection.find({ userId: userId }).toArray();
+    const numTasks = tasks.length;
 
-        let completedOnTime = 0;
-        let notCompletedOnTime = 0;
-        let completed = 0;
-        let notCompleted = 0;
+    let completedOnTime = 0;
+    let notCompletedOnTime = 0;
+    let completed = 0;
+    let notCompleted = 0;
 
-        for (let task of tasks) {
-            let isDeleted = task.isDeleted;
-            if (isDeleted) {
-              continue;
-            }
-          
-            let deadlineDate = task.deadlineDate;
-            let completionDate = task.completionDate;
-            // Converting both to MM/DD/YYYY format just in case
-            let deadline = moment(Date.parse(deadlineDate)).format(
-                "MM/DD/YYYY"
-            );
-            let completion = moment(Date.parse(completionDate)).format(
-                "MM/DD/YYYY"
-            );
-            let isCompleted = task.isCompleted;
+    for (let task of tasks) {
+      let isDeleted = task.isDeleted;
+      if (isDeleted) {
+        continue;
+      }
 
-            if (isCompleted) {
-                completed += 1;
+      let deadlineDate = task.deadlineDate;
+      let completionDate = task.completionDate;
+      // Converting both to MM/DD/YYYY format just in case
+      let deadline = moment(Date.parse(deadlineDate)).format("MM/DD/YYYY");
+      let completion = moment(Date.parse(completionDate)).format("MM/DD/YYYY");
+      let isCompleted = task.isCompleted;
 
-                let doneOnTime = moment(Date.parse(completion)).isBefore(
-                    Date.parse(deadline)
-                );
-                if (doneOnTime) {
-                    completedOnTime += 1;
-                } else {
-                    notCompletedOnTime += 1;
-                }
-            } else {
-                notCompleted += 1;
-            }
+      if (isCompleted) {
+        completed += 1;
+
+        let doneOnTime = moment(Date.parse(completion)).isBefore(
+          Date.parse(deadline)
+        );
+        if (doneOnTime) {
+          completedOnTime += 1;
+        } else {
+          notCompletedOnTime += 1;
 
             let userStatistics = {
                 numTasklists: numTasklists,
