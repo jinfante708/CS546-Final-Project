@@ -44,7 +44,7 @@ async function create(listName){
 
     
     // trigger the function to add this list to the corresponding user
-
+    
 
     return taskList;
 }
@@ -55,6 +55,15 @@ async function getAll(){
     const AllTaskList = await taskListCollection.find({}).toArray();
 
     return AllTaskList;
+}
+
+async function getAllForAUser(userId){
+
+    const targetUser = await userData.get(userId);
+
+    const targetList = targetUser.taskLists;
+    
+    return targetList;
 }
 
 async function get(id){
@@ -194,5 +203,6 @@ module.exports = {
     get,
     update,
     remove,
-    addTask
+    addTask,
+    getAllForAUser
 }
