@@ -13,7 +13,7 @@ Afterwards run 'npm start' to host the website on your local machine (http://loc
 ## How the Application Works
 - Upon loading the website, the first page will be the landing page.
 - A non-authenticated user will only be able to view our landing page which outlines the features of our site (Task priority, User Statistics, Email Reminders)
-- Only a logged in, or authenicated, user will be able to create tasklists and individual tasks. 
+- Only a logged in, or authenticated, user will be able to create tasklists and individual tasks. 
 - In addition, an authenticated user will be able to view their own profile which includes information about their account and personal user statistics.
 
 ## Email reminders
@@ -23,5 +23,5 @@ To do this, create a file `env` in the root directory.
 
 Add two lines to this file, which will be environment variables for the username/password of your email.
 
-user={email_username}
+user={email_username}  
 pass={email_password}
