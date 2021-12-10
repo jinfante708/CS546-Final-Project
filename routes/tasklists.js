@@ -75,8 +75,9 @@ router.post('/', async (req,res) =>{
         return;
     }
 
-    if(! listInfo.listName){
-        res.status(400).json({error: 'you must provide a lsit name'});
+    if(!listInfo.listName){
+        res.status(400).json({error: 'you must provide a list name'});
+        return;
     }
 
     try{
@@ -84,7 +85,19 @@ router.post('/', async (req,res) =>{
 
         
 
-        res.status(200).json(newList);
+        // res.status(200).json(newList);
+
+        let AllTaskList = await taskListsData.getAll();
+
+        let filtered = [];
+        for (let x  of AllTaskList){
+            if(x.isDeleted === false){
+                filtered.push(x);
+            }
+        }
+
+        // res.status(200).json(AllTaskList);
+        res.status(200).render('tasklists/taskBoard', {pageTitle: "Task Board", taskLists: filtered});
     }
     catch(e){
         res.status(400).json({error: e});
