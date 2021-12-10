@@ -335,6 +335,32 @@ async function updateProfile(_userId, _firstName, _lastName, _dateOfBirth) {
   }
 }
 
+async function addTasklistToUser(_userId, _tasklistId) {
+  try {
+    validateAddTasklistToUserTotalArguments(arguments.length);
+
+    const userId = validateUserId(_userId);
+    const tasklistId = validateTasklistId(_tasklistId);
+
+    const usersCollection = await users();
+    const updatedUser = await usersCollection.updateOne(
+      { _id: userId },
+      { $push: { tasklists: tasklistId } }
+    );
+
+    if (updatedUser.modifiedCount === 0) {
+      throwError(
+        ErrorCode.INTERNAL_SERVER_ERROR,
+        "Error: Could not update user's tasklists."
+      );
+    }
+
+    return { userTasklistsUpdated: true };
+  } catch (e) {
+    throwCatchError(error);
+  }
+}
+
 //All validations
 const validateCreateTotalArguments = (totalArguments) => {
   const TOTAL_MANDATORY_ARGUMENTS = 5;
@@ -359,6 +385,17 @@ const validateGetTotalArguments = (totalArguments) => {
 };
 
 const validateCheckUserTotalArguments = (totalArguments) => {
+  const TOTAL_MANDATORY_ARGUMENTS = 2;
+
+  if (totalArguments !== TOTAL_MANDATORY_ARGUMENTS) {
+    throwError(
+      ErrorCode.BAD_REQUEST,
+      "Error: All fields need to have valid values."
+    );
+  }
+};
+
+const validateAddTasklistToUserTotalArguments = (totalArguments) => {
   const TOTAL_MANDATORY_ARGUMENTS = 2;
 
   if (totalArguments !== TOTAL_MANDATORY_ARGUMENTS) {
@@ -502,6 +539,30 @@ const validateUserId = (_userId) => {
   return userId;
 };
 
+const validateTasklistId = (_tasklistId) => {
+  if (!verify.validString(_tasklistId)) {
+    throwError(
+      ErrorCode.BAD_REQUEST,
+      `Error: Tasklist id should be non empty string.`
+    );
+  }
+
+  const tasklistId = _tasklistId.trim();
+
+  const PROJECT_UUID_VERSION = 4;
+
+  if (
+    !uuid.validate(tasklistId) ||
+    uuid.version(tasklistId) !== PROJECT_UUID_VERSION
+  ) {
+    throwError(
+      ErrorCode.BAD_REQUEST,
+      `Error: Tasklist id should be non empty string.`
+    );
+  }
+
+  return tasklistId;
+};
 const throwError = (code = 500, message = "Internal Server Error") => {
   throw { code, message };
 };
@@ -515,6 +576,7 @@ const throwCatchError = (error) => {
 };
 
 module.exports = {
+  addTasklistToUser,
   create,
   get,
   getAll,
