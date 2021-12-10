@@ -1,10 +1,13 @@
 const mongoCollections = require('../config/mongoCollections.js');
 const tasks= mongoCollections.tasks;
+const taskLists = mongoCollections.tasklists;
 const uuid = require('uuid');
 const { 
   v4: uuidv4,
 } = require('uuid');
 const verify = require ('./verify');
+const taskListData = require('./tasklists');
+
 
 function compare(a, b) {
   // Use toUpperCase() to ignore character casing
@@ -23,12 +26,41 @@ function compare(a, b) {
 
 
 let exportedMethods = {
-  async getAll(){
+
+  async gettasklistid(taskid)
+  {
+    const taskListCollection = await taskLists();
+    const alltasklist = await taskListCollection.find().toArray();
+    let a
+    alltasklist.forEach(element => {
+      for(i=0;i<element.tasks.length;i++)
+      {
+        if(element.tasks[i]==taskid)
+        a =element._id
+      }
+    });
+    return a;
+    // const task= await taskListCollection.findOne({taskid: { $in: tasks}});
+    // console.log(task)
+    //const alltasks = await tasksCollection.find({_id: { $in: }}).toArray();
+  },
+
+  async getAll(ids){
     const tasksCollection = await tasks();
-    const alltasks = await tasksCollection.find({}).toArray();
+   const alltasks = await tasksCollection.find({_id: { $in: ids }}).toArray();
     PriorityInDescendingorder = alltasks.sort(compare);
     return PriorityInDescendingorder;
   },
+
+  
+ async get(id){
+  //  console.log(id)
+  id=id.trim()
+  const tasksCollection = await tasks();
+  const task= await tasksCollection.findOne({ _id: id});
+  return task
+},
+
 
   async remove(id){
     const tasksCollection = await tasks();
@@ -144,18 +176,10 @@ let exportedMethods = {
 
   },
 
- async get(id){
-  
-    id=id.trim()
-    const tasksCollection = await tasks();
-    const task= await tasksCollection.findOne({ _id: id});
-    return task
-  },
-
 
 
 async update (id,name,importance, deadlineDate){
-  console.log(name)
+  // console.log(name)
         const tasksCollection = await tasks();
         if(!verify.validString(name)){
           throw "Name is not valid";

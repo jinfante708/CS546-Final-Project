@@ -8,7 +8,6 @@
       hasErrors = true;
       return false;
     }
-
     return true;
   }
 
@@ -34,6 +33,7 @@
   let form = $("#add-task-form");
   let name = $("#task-name-input");
   let importance = $("#importance-input");
+  let tasklistid= $("#task-listid-input");
   let deadlineDate = $("#deadline-input");
   let submitBtn = $("#submitButton");
   let errors = $("#error-list");
@@ -49,12 +49,14 @@
     deadlineDate.removeClass("is-invalid is-valid");
 
     let taskInfo = {
+      tasklistid: tasklistid.val().trim(),
       name: name.val().trim(),
       importance: importance.val().trim(),
       deadlineDate: deadlineDate.val().trim(),
     };
 
-    // console.log(taskInfo);
+
+ 
     // Client-side error checking for three fields
 
     // Is the task name a valid string?
@@ -103,8 +105,8 @@ function submitnewtaskform(taskInfo) {
       beforeSend: function () {
           $("#loader-container").removeClass("d-none");
       },
-      success: function () {
-          window.location.href = "/tasks";
+      success: function (data) {
+         window.location.href = `/tasks/tasksfortasklist/${data}`;
       },
       complete: function () {
           $("#loader-container").addClass("d-none");

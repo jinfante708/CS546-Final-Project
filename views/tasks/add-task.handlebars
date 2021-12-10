@@ -1,5 +1,6 @@
 {{!-- Fields given by user: Name, Importance, Deadline Date --}}
 <h1>Create a new task</h1>
+<h1> {{taskid}} </h1>
 {{!-- 
       novalidate attribute is needed for custom Bootstrap form validation messages
       it disables the browser default feedback tooltips, but still provides access to
@@ -15,6 +16,9 @@
         <div class="invalid-feedback">
             Please provide a task name
         </div>
+    </div>
+   <div class="form-group">
+         <input type="hidden" id="task-listid-input" name="task-tasklistid" value={{taskid}}>
     </div>
 
     <div class="form-group">
