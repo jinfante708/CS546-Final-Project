@@ -8,9 +8,13 @@ const verify = require ('./verify');
 
 const uuid = require ("uuid");//when in use, type _id = uuid.v4();
 
-async function create(listName){
+async function create(listName, userId){
     if(!verify.validString(listName)){
         throw "listName is not valid";
+    }
+
+    if(!verify.validString(userId)){
+        throw "userId is not valid";
     }
 
     const today = new Date();
@@ -25,6 +29,7 @@ async function create(listName){
 
     let newTaskList = {
         _id: uuid.v4(),
+        userId: userId,
         listName: listName,
         tasks: [],
         isDeleted: false,
@@ -58,6 +63,9 @@ async function getAll(){
 }
 
 async function getAllForAUser(userId){
+    if(!verify.validString(userId)){
+        throw "userId is not valid string.";
+    }
 
     const targetUser = await userData.get(userId);
 
