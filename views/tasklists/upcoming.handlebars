@@ -7,7 +7,8 @@
 <ul id = "upcoming_tasks">
     {{#each firstTasks}}
 
-    <li>{{this.listName}}: {{this.firstTask}}</li>
+    <li>{{this.listName}}: {{this.firstTask}} | Deadline: {{this.deadline}}</li>
+    {{!-- <li>{{this.listName}}: {{this.firstTask}}</li> --}}
 
     {{/each}}
 </ul>

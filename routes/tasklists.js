@@ -4,6 +4,28 @@ const data = require('../data');
 const taskListsData = data.tasklists;
 const taskData = data.tasks;
 const userData = data.users;
+const verify = require("./verify");
+const uuid = require("uuid");
+const xss = require("xss");
+
+const validateTasklistId = (_tasklistId) => {
+    if (!verify.validString(_tasklistId)) {
+      throw "this tasklist id is invalid.";
+    }
+  
+    const tasklistId = _tasklistId.trim();
+  
+    const PROJECT_UUID_VERSION = 4;
+  
+    if (
+      !uuid.validate(tasklistId) ||
+      uuid.version(tasklistId) !== PROJECT_UUID_VERSION
+    ) {
+     throw "this tasklist id is invalid.";
+    }
+  
+    return tasklistId;
+};
 
 router.get('/', async (req,res) =>{
 
@@ -15,6 +37,7 @@ router.get('/', async (req,res) =>{
         return;
     }
 
+    if(!userData.valid)
 
     try{
         // let AllTaskList = await taskListsData.getAll();
@@ -62,14 +85,17 @@ router.get('/upcoming', async (req, res)=>{
         }
 
         let AllFirstTasks = [];
+        let AllDeadlines = [];
         for (let y of filtered){
             if(y.tasks.length > 0){
 
                 let task = await taskData.get(y.tasks[0]);
                 AllFirstTasks.push(task.name);
+                AllDeadlines.push(task.deadlineDate);
             }
             else{
                 AllFirstTasks.push("N/A");
+                AllDeadlines.push("N/A")
             }
             
             
@@ -80,6 +106,7 @@ router.get('/upcoming', async (req, res)=>{
         for (let i = 0; i < filtered.length; i ++){
             let temp = {
                 listName: filtered[i].listName,
+                deadline: AllDeadlines[i],
                 firstTask: AllFirstTasks[i]
             }
 
@@ -95,11 +122,20 @@ router.get('/upcoming', async (req, res)=>{
 
 router.get('/:id', async (req, res) =>{
 
+    if(!req.session.user){
+        res.redirect('/');
+        return;
+    }
+
+    
+
     try{
         // let targetList = await taskListsData.get(req.params.id);
         // res.status(200).json(targetList);
 
         // should return all the tasks from this list.
+
+        const id = validateTasklistId(xss(req.params.id));
 
     }
     catch(e){
