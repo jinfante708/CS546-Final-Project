@@ -10,6 +10,8 @@ const users = mongoCollections.users;
 const tasklists = mongoCollections.tasklists;
 const tasks = mongoCollections.tasks;
 
+const tasklistsData = require("./tasklists");
+
 const ErrorCode = {
   BAD_REQUEST: 400,
   NOT_FOUND: 404,
@@ -341,6 +343,10 @@ async function addTasklistToUser(_userId, _tasklistId) {
 
     const userId = validateUserId(_userId);
     const tasklistId = validateTasklistId(_tasklistId);
+
+    // Check that user and tasklist exist
+    const user = this.get(userId);
+    const tasklist = tasklistsData.get(tasklistId);
 
     const usersCollection = await users();
     const updatedUser = await usersCollection.updateOne(
