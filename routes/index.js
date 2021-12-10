@@ -10,6 +10,13 @@ const constructorMethod = (app) => {
     app.get("/", (request, response) => {
         return response.render("home", { pageTitle: "Home" });
     });
+    app.get("/getStarted", (request, response) => {
+        if (request.session.user) {
+            return response.redirect("/tasklists");
+        } else {
+            return response.redirect("/users/signup");
+        }
+    });
 
     //for accessing unknown routes
     app.use("*", (request, response) => {
