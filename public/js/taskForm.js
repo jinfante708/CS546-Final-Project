@@ -1,44 +1,45 @@
 (function ($) {
-  $(document).ready(function () {
-  let hasErrors = false;
+    $(document).ready(function () {
+        let hasErrors = false;
 
-  function validString(str) {
-    // Is input given? Is input not a number? (All form input is of type string)
-    if (!str || !isNaN(str)) {
-      hasErrors = true;
-      return false;
-    }
-    return true;
-  }
+        function validString(str) {
+            // Is input given? Is input not a number? (All form input is of type string)
+            if (!str || !isNaN(str)) {
+                hasErrors = true;
+                return false;
+            }
 
-  function validFormNumber(num) {
-    if (!num || isNaN(num) || num < 1 || num > 10) {
-      hasErrors = true;
-      return false;
-    }
+            return true;
+        }
 
-    return true;
-  }
+        function validFormNumber(num) {
+            if (!num || isNaN(num) || num < 1 || num > 10) {
+                hasErrors = true;
+                return false;
+            }
 
-  // Is date given? Is date of format MM/DD/YYYY?
-  function validDate(date) {
-    if (!date || !moment(date, "MM/DD/YYYY", true).isValid()) {
-      hasErrors = true;
-      return false;
-    }
+            return true;
+        }
 
-    return true;
-  }
+        // Is date given? Is date of format MM/DD/YYYY?
+        function validDate(date) {
+            if (!date || !moment(date, "MM/DD/YYYY", true).isValid()) {
+                hasErrors = true;
+                return false;
+            }
 
-  let form = $("#add-task-form");
-  let name = $("#task-name-input");
-  let importance = $("#importance-input");
-  let tasklistid= $("#task-listid-input");
-  let deadlineDate = $("#deadline-input");
-  let submitBtn = $("#submitButton");
-  let errors = $("#error-list");
+            return true;
+        }
 
-  form.submit((event) => {
+        let form = $("#add-task-form");
+        let name = $("#task-name-input");
+        let importance = $("#importance-input");
+       let tasklistid= $("#task-listid-input");
+        let deadlineDate = $("#deadline-input");
+        let submitBtn = $("#submitButton");
+        let errors = $("#error-list");
+
+     form.submit((event) => {
     event.preventDefault();
     hasErrors = false;
     submitBtn.prop("disabled", true);
@@ -96,7 +97,8 @@
   });
 });
 
-function submitnewtaskform(taskInfo) {
+
+  function submitnewtaskform(taskInfo) {
   $.ajax({
       url: '/tasks',
       method: "POST",
@@ -117,5 +119,4 @@ function submitnewtaskform(taskInfo) {
       },
   });
 }
-
 })(jQuery);

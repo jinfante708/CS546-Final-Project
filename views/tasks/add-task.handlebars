@@ -1,66 +1,92 @@
 {{!-- Fields given by user: Name, Importance, Deadline Date --}}
-<h1>Create a new task</h1>
-<h1> {{taskid}} </h1>
-{{!-- 
-      novalidate attribute is needed for custom Bootstrap form validation messages
-      it disables the browser default feedback tooltips, but still provides access to
-      the form validation APIs in JavaScript 
+
+
+{{!--
+novalidate attribute is needed for custom Bootstrap form validation messages
+it disables the browser default feedback tooltips, but still provides access to
+the form validation APIs in JavaScript
 --}}
-<form id="add-task-form" action="/tasks" method="POST" class="needs-validation" novalidate>
-    <div class="form-group">
-        <label for="task-name-input">Name</label>
-        <input type="text" id="task-name-input" name="task-name" placeholder="Task Name">
-        <div class="valid-feedback">
-            Looks good!
-        </div>
-        <div class="invalid-feedback">
-            Please provide a task name
-        </div>
-    </div>
-   <div class="form-group">
-         <input type="hidden" id="task-listid-input" name="task-tasklistid" value={{taskid}}>
-    </div>
+<div class="container d-flex flex-column">
+    <div class="row align-items-center justify-content-center g-0 min-vh-100">
+        <div class="col-lg-5 col-md-8 py-8 py-xl-0">
+            <div class="card shadow">
+                <div class="card-body p-6">
+                    <div class="mb-4">
+                        <h1 class="mb-1 fw-bold">Create a new task</h1>
+                        <form id="add-task-form" action="/tasks" class="needs-validation" novalidate>
 
-    <div class="form-group">
-        <label for="importance-input">Importance</label>
-        <input type="number" id="importance-input" name="importance" placeholder="Importance">
-        <div class="valid-feedback">
-            Looks good!
-        </div>
-        <div class="invalid-feedback">
-            Please provide a valid rating for Importance (Number from 1 to 10)
+                            <div class="mb-3">
+                                <label for="task-name-input" class="form-label">Name<span
+                                        class="mandatory">*</span></label>
+                                <input type="text" id="task-name-input" name="task-name" class="form-control"
+                                    placeholder="Enter your task name here" required="required" autocomplete="off" />
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                                <div class="invalid-feedback">
+                                    Please provide a task name
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="importance-input" class="form-label">Importance<span
+                                        class="mandatory">*</span></label>
+                                <input type="number" id="importance-input" name="importance" class="form-control"
+                                    placeholder="Enter task importance here (Number from 1 to 10)" required="required"
+                                    autocomplete="off" />
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                                <div class="invalid-feedback">
+                                    Please provide a valid rating for Importance (Number from 1 to 10)
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="deadline-input" class="form-label">Deadline Date<span
+                                        class="mandatory">*</span></label>
+                                <input type="text" id="deadline-input" name="deadline" class="form-control"
+                                    placeholder="Enter task deadline here in MM/DD/YYYY format" required="required"
+                                    autocomplete="off" />
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                                <div class="invalid-feedback">
+                                    Please provide a valid date in MM/DD/YYYY format
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="d-grid">
+                                    <button type="submit" id="submitButton" name="submitButton"
+                                        class="btn btn-primary">Submit New Task</button>
+                                </div>
+                            </div>
+
+                            {{!-- Will use bootstrap for error validation so the request should never reach
+                            the server, but I'll leave this here in the scenario that it does need to render
+                            errors sent through routes --}}
+                            {{#if hasErrors}}
+                            <ul class="error-list">
+                                {{#each errors}}
+                                <li>{{this}}</li>
+                                {{/each}}
+                            </ul>
+                            {{/if}}
+                          <input type="hidden" id="task-listid-input" name="task-tasklistid" value={{taskid}}>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+</div>
 
-    <div class="form-group">
-        <label for="deadline-input">Deadline Date</label>
-        <input type="text" id="deadline-input" name="deadline" placeholder="Deadline">
-        <div class="valid-feedback">
-            Looks good!
-        </div>
-        <div class="invalid-feedback">
-            Please provide a valid date in MM/DD/YYYY format
-        </div>
-    </div>
-    
-    <button type="submit" id="submitButton" name="submitButton">Submit New Task</button>
-
-    {{!-- Will use bootstrap for error validation so the request should never reach
-    the server, but I'll leave this here in the scenario that it does need to render
-    errors sent through routes --}}
-    {{#if hasErrors}}
-        <ul class="error-list">
-            {{#each errors}}
-                <li>{{this}}</li>
-            {{/each}}
-        </ul>
-    {{/if}}
-</form>
 <script type="text/JavaScript" src="https://momentjs.com/downloads/moment.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+
 {{!-- I need to load the jquery library before our client side javascript, or else it won't
 be able to properly compile. I think we need to use partials in order to load the respective
 client-side javascript files (such as taskForm.js) at the end of our main.handlebars. Essentially
-I'm trying to avoid including the jquery CDN in every individual handlebars file and would like to 
+I'm trying to avoid including the jquery CDN in every individual handlebars file and would like to
 keep in stored in main.handlebars.--}}
 <script src="/public/js/taskForm.js"></script>

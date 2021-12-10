@@ -7,8 +7,8 @@ const bcryptjs = require("bcryptjs");
 const moment = require("moment");
 
 const users = mongoCollections.users;
-const tasklists = mongoCollections.tasklists;
-const tasks = mongoCollections.tasks;
+const tasklistsCol = mongoCollections.tasklists;
+const tasksCol = mongoCollections.tasks;
 
 const tasklistsData = require("./tasklists");
 
@@ -85,6 +85,7 @@ async function get(_userId) {
           lastName: 1,
           email: 1,
           dateOfBirth: 1,
+          taskLists: 1,
         },
       }
     );
@@ -125,12 +126,12 @@ async function getUserStatistics(_userId) {
 
     const userId = validateUserId(_userId);
 
-    const tasklistsCollection = await tasklists();
+    const tasklistsCollection = await tasklistsCol();
 
     const tasklists = tasklistsCollection.find({ userId: userId }).toArray();
     const numTasklists = tasklists.length;
 
-    const tasksCollection = await tasks();
+    const tasksCollection = await tasksCol();
     const tasks = tasksCollection.find({ userId: userId }).toArray();
     const numTasks = tasks.length;
 
@@ -140,6 +141,11 @@ async function getUserStatistics(_userId) {
     let notCompleted = 0;
 
     for (let task of tasks) {
+      let isDeleted = task.isDeleted;
+      if (isDeleted) {
+        continue;
+      }
+
       let deadlineDate = task.deadlineDate;
       let completionDate = task.completionDate;
       // Converting both to MM/DD/YYYY format just in case
@@ -157,21 +163,19 @@ async function getUserStatistics(_userId) {
           completedOnTime += 1;
         } else {
           notCompletedOnTime += 1;
+
+          let userStatistics = {
+            numTasklists: numTasklists,
+            numTasks: numTasks,
+            completedOnTime: completedOnTime,
+            notCompletedOnTime: notCompletedOnTime,
+            completed: completed,
+            notCompleted: notCompleted,
+          };
+
+          return userStatistics;
         }
-      } else {
-        notCompleted += 1;
       }
-
-      let userStatistics = {
-        numTasklists: numTasklists,
-        numTasks: numTasks,
-        completedOnTime: completedOnTime,
-        notCompletedOnTime: notCompletedOnTime,
-        completed: completed,
-        notCompleted: notCompleted,
-      };
-
-      return userStatistics;
     }
   } catch (error) {
     throwCatchError(error);
@@ -345,13 +349,13 @@ async function addTasklistToUser(_userId, _tasklistId) {
     const tasklistId = validateTasklistId(_tasklistId);
 
     // Check that user and tasklist exist
-    const user = this.get(userId);
-    const tasklist = tasklistsData.get(tasklistId);
+    // const user = await this.get(userId);
+    // const tasklist = await tasklistsData.get(tasklistId);
 
     const usersCollection = await users();
     const updatedUser = await usersCollection.updateOne(
       { _id: userId },
-      { $push: { tasklists: tasklistId } }
+      { $push: { taskLists: tasklistId } }
     );
 
     if (updatedUser.modifiedCount === 0) {

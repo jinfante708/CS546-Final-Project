@@ -3,15 +3,27 @@ const router = express.Router();
 const data = require('../data');
 const taskListsData = data.tasklists;
 const taskData = data.tasks;
+const userData = data.users;
 
 router.get('/', async (req,res) =>{
+
+
+    if(!req.session.user){
+        res.status(400).json({error: 'user does not exists.'});
+        return;
+    }
+
+
     try{
-        let AllTaskList = await taskListsData.getAll();
+        // let AllTaskList = await taskListsData.getAll();
+
+        let AllTaskList = await taskListsData.getAllForAUser(req.session.user._id);
 
         let filtered = [];
         for (let x  of AllTaskList){
-            if(x.isDeleted === false){
-                filtered.push(x);
+            let temp = await taskListsData.get(x);
+            if(temp.isDeleted === false){
+                filtered.push(temp);
             }
         }
 
@@ -75,16 +87,35 @@ router.post('/', async (req,res) =>{
         return;
     }
 
-    if(! listInfo.listName){
-        res.status(400).json({error: 'you must provide a lsit name'});
+    if(!listInfo.listName){
+        res.status(400).json({error: 'you must provide a list name'});
+        return;
+    }
+
+    if(!req.session.user){
+        res.status(400).json({error: 'user does not exists.'});
+        return;
     }
 
     try{
         const newList = await taskListsData.create(listInfo.listName);
 
-        
+        const addToUser = await userData.addTasklistToUser(req.session.user._id, newList._id)
 
-        res.status(200).json(newList);
+        // res.status(200).json(newList);
+
+        let AllTaskList = await taskListsData.getAllForAUser(req.session.user._id);
+
+        let filtered = [];
+        for (let x  of AllTaskList){
+            let temp = await taskListsData.get(x);
+            if(temp.isDeleted === false){
+                filtered.push(temp);
+            }
+        }
+
+        // res.status(200).json(AllTaskList);
+        res.status(200).render('tasklists/taskBoard', {pageTitle: "Task Board", taskLists: filtered});
     }
     catch(e){
         res.status(400).json({error: e});
