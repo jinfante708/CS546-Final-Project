@@ -3,10 +3,21 @@ const router = express.Router();
 const data = require('../data');
 const taskListsData = data.tasklists;
 const taskData = data.tasks;
+const userData = data.users;
 
 router.get('/', async (req,res) =>{
+
+
+    if(!req.session.user){
+        res.status(400).json({error: 'user does not exists.'});
+        return;
+    }
+
+
     try{
-        let AllTaskList = await taskListsData.getAll();
+        // let AllTaskList = await taskListsData.getAll();
+
+        let AllTaskList = await taskListsData.getAllForAUser(req.session.user._id);
 
         let filtered = [];
         for (let x  of AllTaskList){
@@ -80,10 +91,15 @@ router.post('/', async (req,res) =>{
         return;
     }
 
+    if(!req.session.user){
+        res.status(400).json({error: 'user does not exists.'});
+        return;
+    }
+
     try{
         const newList = await taskListsData.create(listInfo.listName);
 
-        
+        const addToUser = await userData.addTasklistToUser(req.session.user._id, newList._id)
 
         // res.status(200).json(newList);
 

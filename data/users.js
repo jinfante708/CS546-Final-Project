@@ -345,13 +345,13 @@ async function addTasklistToUser(_userId, _tasklistId) {
     const tasklistId = validateTasklistId(_tasklistId);
 
     // Check that user and tasklist exist
-    const user = this.get(userId);
-    const tasklist = tasklistsData.get(tasklistId);
+    const user = await this.get(userId);
+    const tasklist = await tasklistsData.get(tasklistId);
 
     const usersCollection = await users();
     const updatedUser = await usersCollection.updateOne(
       { _id: userId },
-      { $push: { tasklists: tasklistId } }
+      { $push: { taskLists: tasklistId } }
     );
 
     if (updatedUser.modifiedCount === 0) {
