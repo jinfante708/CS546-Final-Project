@@ -200,7 +200,7 @@ router.get("/update-profile", async (request, response) => {
   let user;
   try {
     user = await usersData.get(request.session.user._id);
-    console.log(user);
+
     response.render("users/update-profile", {
       pageTitle: "Update Profile",
       user: user,
