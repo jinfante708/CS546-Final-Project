@@ -84,7 +84,7 @@ $(document).ready(function () {
     }
 
     if (!hasErrors) {
-      var requestConfig = {
+      $.ajax({
         method: "PUT",
         url: `/users/profile`,
         contentType: "application/json",
@@ -92,9 +92,7 @@ $(document).ready(function () {
         success: function () {
           window.location.href = "/users/profile";
         },
-      };
-
-      $.ajax(requestConfig).then(function (responseMessage) {
+      }).then(function (responseMessage) {
         console.log(responseMessage);
       });
     } else {
