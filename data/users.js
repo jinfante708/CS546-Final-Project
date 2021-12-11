@@ -128,11 +128,13 @@ async function getUserStatistics(_userId) {
 
     const tasklistsCollection = await tasklistsCol();
 
-    const tasklists = tasklistsCollection.find({ userId: userId }).toArray();
+    const tasklists = await tasklistsCollection
+      .find({ userId: userId })
+      .toArray();
     const numTasklists = tasklists.length;
 
     const tasksCollection = await tasksCol();
-    const tasks = tasksCollection.find({ userId: userId }).toArray();
+    const tasks = await tasksCollection.find({ userId: userId }).toArray();
     const numTasks = tasks.length;
 
     let completedOnTime = 0;
@@ -140,9 +142,19 @@ async function getUserStatistics(_userId) {
     let completed = 0;
     let notCompleted = 0;
 
+    console.log(tasks);
     for (let task of tasks) {
+      // If task was deleted, don't include in statistics
       let isDeleted = task.isDeleted;
       if (isDeleted) {
+        continue;
+      }
+
+      // If task isn't completed, increment notCompleted and continue
+      // Otherwise, do further checks
+      let isCompleted = task.isCompleted;
+      if (!isCompleted) {
+        notCompleted += 1;
         continue;
       }
 
@@ -151,32 +163,34 @@ async function getUserStatistics(_userId) {
       // Converting both to MM/DD/YYYY format just in case
       let deadline = moment(Date.parse(deadlineDate)).format("MM/DD/YYYY");
       let completion = moment(Date.parse(completionDate)).format("MM/DD/YYYY");
-      let isCompleted = task.isCompleted;
+      // let isCompleted = task.isCompleted;
 
-      if (isCompleted) {
-        completed += 1;
+      // if (isCompleted) {
+      completed += 1;
 
-        let doneOnTime = moment(Date.parse(completion)).isBefore(
-          Date.parse(deadline)
-        );
-        if (doneOnTime) {
-          completedOnTime += 1;
-        } else {
-          notCompletedOnTime += 1;
-
-          let userStatistics = {
-            numTasklists: numTasklists,
-            numTasks: numTasks,
-            completedOnTime: completedOnTime,
-            notCompletedOnTime: notCompletedOnTime,
-            completed: completed,
-            notCompleted: notCompleted,
-          };
-
-          return userStatistics;
-        }
+      let doneOnTime = moment(Date.parse(completion)).isBefore(
+        Date.parse(deadline)
+      );
+      if (doneOnTime) {
+        completedOnTime += 1;
+      } else {
+        notCompletedOnTime += 1;
       }
+      // }
+      // else {
+      //   notCompleted += 1;
+      // }
     }
+    let userStatistics = {
+      numTasklists: numTasklists,
+      numTasks: numTasks,
+      completedOnTime: completedOnTime,
+      notCompletedOnTime: notCompletedOnTime,
+      completed: completed,
+      notCompleted: notCompleted,
+    };
+
+    return userStatistics;
   } catch (error) {
     throwCatchError(error);
   }
