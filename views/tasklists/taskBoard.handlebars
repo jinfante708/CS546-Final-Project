@@ -8,13 +8,16 @@
     <label>
         Create a new list:
         <br>
-        <input type = "text" name= "listName" placeholder="name of new list">
+        <input type = "text" name= "listName" id = "listName" placeholder="name of new list">
     </label>
 
     <label>
         <button type="submit">Create</button>
     </label>
 </form>
+
+    <p id="error" class="error">
+    </p>
 
 <ul id = "taskLists_on_board">
     {{#each taskLists}}
@@ -26,3 +29,8 @@
 
     {{/each}}
 </ul>
+
+
+<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+        crossorigin="anonymous"></script>
+<script src="/public/js/addTaskList.js"></script>
