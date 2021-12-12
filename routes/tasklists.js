@@ -120,6 +120,7 @@ router.get('/upcoming', async (req, res)=>{
         for (let i = 0; i < filtered.length; i ++){
             let temp = {
                 listName: filtered[i].listName,
+                listId: filtered[i]._id,
                 deadline: AllDeadlines[i],
                 firstTask: AllFirstTasks[i]
             }
