@@ -27,29 +27,6 @@ function compare(a, b) {
 
 let exportedMethods = {
 
-  async getAll(ids){
-    
-     if(Array.isArray(ids)===false) 
-     throw 'Ids must be an array'
-      let a = []
-  
-     for(i=0;i<ids.length;i++)
-     { 
-      const Id = validatetId(xss(ids[i])); 
-      a.push(Id)
-     }
-  
-    const tasksCollection = await tasks();
-   const alltasks = await tasksCollection.find({_id: { $in: a }}).toArray();
-  
-  // console.log(alltasks)
-
-  //  if(alltasks.length==0)
-  //  {throw "No tasks present for the provided tasklist"}
-
-    PriorityInDescendingorder = alltasks.sort(compare);
-    return PriorityInDescendingorder;
-  },
 
   async gettasklistid(taskid,userid)
   {   userid = validatetId(xss(userid))
@@ -77,17 +54,30 @@ let exportedMethods = {
      if(Array.isArray(ids)===false) 
      throw 'Ids must be an array'
 
+
+     let a = []
+  
+     for(i=0;i<ids.length;i++)
+     { 
+      const Id = validatetId(xss(ids[i])); 
+      a.push(Id)
+     }
+
+
     for (let x of ids){
        const Id = validatetId(xss(x)); 
-      let tempTask = await this.get(x);
 
-      if(tempTask.userId !== userId || tempTask.taskListId !== tasklistId){
+      let tempTask = await this.get(Id, userId);
+
+      let tempListId = await this.gettasklistid(tempTask._id, userId);
+
+      if(tempTask.userId !== userId || tempListId !== tasklistId){
         throw "these tasks don't belong to this user or don't belong to this task list.";
       }
     }
 
     const tasksCollection = await tasks();
-    const alltasks = await tasksCollection.find({_id: { $in: ids }}).toArray();
+    const alltasks = await tasksCollection.find({_id: { $in: a }}).toArray();
     PriorityInDescendingorder = alltasks.sort(compare);
     return PriorityInDescendingorder;
   },

@@ -13,7 +13,7 @@
                         Upcoming tasks
                     </h1>
 
-                    {{#if firstTasks.length}}
+                    {{#unless firstTasks.length}}
 
                     <P>There is no upcoming tasks now</P>
 
@@ -36,7 +36,7 @@
                     </div>
 
 
-                    {{/if}}
+                    {{/unless}}
 
                     {{#if error}}
                     <p id="error">{{error}}</p>
