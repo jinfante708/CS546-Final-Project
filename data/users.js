@@ -126,6 +126,9 @@ async function getUserStatistics(_userId) {
 
     const userId = validateUserId(_userId);
 
+    // Check that user exists
+    const user = await this.get(userId);
+
     const tasklistsCollection = await tasklistsCol();
     const tasklists = await tasklistsCollection
       .find({ userId: userId })
