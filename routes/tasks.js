@@ -32,7 +32,7 @@ router.get('/tasksfortasklist/:id', async (req, res) => {
       if (allTasks[i].isDeleted==false && allTasks[i].isCompleted==false  )
       {t.push(allTasks[i])}
     }
-   res.render('tasklists/tasklist',{tasks:t, tasklistname: tasklists.listName, tasklistid: tasklists._id});
+   res.render('tasklists/tasklist',{ pageTitle: "ALL TASKS",tasks:t, tasklistname: tasklists.listName, tasklistid: tasklists._id});
   } catch (e) {
    res.status(400).json({error: e});
   }
@@ -57,7 +57,7 @@ router.get('/addnewtask/:id', async (req, res) => {
     throw "TasklistId not exists for the user in session"
    }
  
-  res.render('tasks/add-task',{taskid: id});
+  res.render('tasks/add-task',{ pageTitle: "ADD NEW TASK",taskid: id});
   }  catch (e) {
     console.log(e)
     res.status(400).json({error: e});
@@ -173,7 +173,7 @@ router.get('/edit/:id', async (req, res) => {
       throw "TasklistId not exists for the user in session"
      }
     const task = await tasksData.get(id, req.session.user._id);
-     res.render('tasks/edit-task',{task: task})
+     res.render('tasks/edit-task',{ pageTitle: "EDIT TASK",task: task})
   } catch (e) {  
     console.log(e)
     res.status(500).json({error: e});
