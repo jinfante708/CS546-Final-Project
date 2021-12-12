@@ -210,80 +210,80 @@ router.post('/', async (req,res) =>{
 });
 
 
-router.put('/:id', async  (req,res)=>{// this is actuallhy not in use too because we don't have a "edit task list" feature
+// router.put('/:id', async  (req,res)=>{// this is actuallhy not in use too because we don't have a "edit task list" feature
 
-    if(!req.params.id){
-        throw "you must provide an id.";
-    } 
+//     if(!req.params.id){
+//         throw "you must provide an id.";
+//     } 
 
-    let listInfo = req.body;
+//     let listInfo = req.body;
 
-    if(! listInfo){
-        res.status(400).json({error: 'you must provide data to update a task list.'});
-        return;
-    }
+//     if(! listInfo){
+//         res.status(400).json({error: 'you must provide data to update a task list.'});
+//         return;
+//     }
 
-    if(! listInfo.listName){
-        res.status(400).json({error: 'you must provide a list name'});
-        return;
-    }
+//     if(! listInfo.listName){
+//         res.status(400).json({error: 'you must provide a list name'});
+//         return;
+//     }
 
-    if(!listInfo.tasks){
-        res.status(400).json({error: 'you must provide tasks for the list.'});
-        return;
-    }
+//     if(!listInfo.tasks){
+//         res.status(400).json({error: 'you must provide tasks for the list.'});
+//         return;
+//     }
 
-    //maybe some extra error checking for isDeleted and deletionDate, 
-    // but we want to make sure users can only update these two fields with the "delete" method
+//     //maybe some extra error checking for isDeleted and deletionDate, 
+//     // but we want to make sure users can only update these two fields with the "delete" method
 
-    try{
-        let targetList = await taskListsData.get(req.params.id);
-        let isDeleted = targetList.isDeleted;
+//     try{
+//         let targetList = await taskListsData.get(req.params.id);
+//         let isDeleted = targetList.isDeleted;
 
-        if(isDeleted === true){
-            res.status(404).json({error: 'this list has been deleted.'});
-            return;
-        }
-    }
-    catch(e){
-        res.status(400).json({error: e});
-    }
+//         if(isDeleted === true){
+//             res.status(404).json({error: 'this list has been deleted.'});
+//             return;
+//         }
+//     }
+//     catch(e){
+//         res.status(400).json({error: e});
+//     }
 
-    // now isDeleted must be false
+//     // now isDeleted must be false
 
-    try{
-        const updatedList = await taskListsData.update(
-            req.params.id,
-            listInfo.listName,
-            listInfo.tasks,
-            false,
-            ''
-        )
+//     try{
+//         const updatedList = await taskListsData.update(
+//             req.params.id,
+//             listInfo.listName,
+//             listInfo.tasks,
+//             false,
+//             ''
+//         )
 
-        res.status(200).json(updatedList);
-    }
-    catch(e){
-        res.status(400).json({error: e});
-    }
-});
+//         res.status(200).json(updatedList);
+//     }
+//     catch(e){
+//         res.status(400).json({error: e});
+//     }
+// });
 
-router.delete('/:id', async (req,res) => {
-   try{
-        await taskListsData.get(req.params.id);
-   }
-   catch(e){
-       res.status(404).json({error: e});
-       return;
-   }
+// router.delete('/:id', async (req,res) => {
+//    try{
+//         await taskListsData.get(req.params.id);
+//    }
+//    catch(e){
+//        res.status(404).json({error: e});
+//        return;
+//    }
 
-   try{
-       const deletedInfo = await taskListsData.remove(req.params.id);
-       res.status(200).json(deletedInfo);
-   }
-   catch(e){
-       res.status(400).json({error: e});
-   }
-});
+//    try{
+//        const deletedInfo = await taskListsData.remove(req.params.id);
+//        res.status(200).json(deletedInfo);
+//    }
+//    catch(e){
+//        res.status(400).json({error: e});
+//    }
+// });
 
 
 
