@@ -134,7 +134,7 @@ router.get('/upcoming', async (req, res)=>{
     }
 });
 
-router.get('/:id', async (req, res) =>{
+router.get('/:id', async (req, res) =>{// this route is actually not in use
 
     if(!req.session.user){
         res.redirect('/');
@@ -212,7 +212,7 @@ router.post('/', async (req,res) =>{
 });
 
 
-router.put('/:id', async  (req,res)=>{
+router.put('/:id', async  (req,res)=>{// this is actuallhy not in use too because we don't have a "edit task list" feature
 
     if(!req.params.id){
         throw "you must provide an id.";

@@ -32,7 +32,7 @@ $(document).ready(function () {
             submit(newList);
         }
         else{
-            error.html("this is not a valid list name.")
+            error.html("list name should not be empty.")
             input.focus();
             input.value= "";
         }
