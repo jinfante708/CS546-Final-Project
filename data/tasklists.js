@@ -191,10 +191,26 @@ async function update(id, listName, tasks, isDeleted, dateOfDeletion){
         throw "id is invalid string.";
     }
 
+    if(!uuid.validate(id)){
+        throw "this id is not a valid id.";
+    }
+
     if(!verify.validString(listName)){
         throw "listName is invalid string.";
     }
 
+
+    if(!tasks){
+        throw "you need to provide tasks.";
+    }
+
+    if(!isDeleted){
+        throw "you need to provide isDeleted.";
+    }
+
+    if(!dateOfDeletion){
+        throw "you need to provide dateOfDeletion";
+    }
 
 
     let oldList = await this.get(id);
