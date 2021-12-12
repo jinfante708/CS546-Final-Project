@@ -13,6 +13,11 @@
                         Upcoming tasks
                     </h1>
 
+                    {{#if firstTasks.length}}
+
+                    <P>There is no upcoming tasks now</P>
+
+                    {{else}}
                     <div class="list-group">
                         {{#each firstTasks}}
                         <a href="/tasks/tasksfortasklist/{{this.listId}}"
@@ -30,9 +35,13 @@
                         {{/each}}
                     </div>
 
+
+                    {{/if}}
+
                     {{#if error}}
                     <p id="error">{{error}}</p>
                     {{/if}}
+
 
                 </div>
             </div>
