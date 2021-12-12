@@ -108,7 +108,7 @@ router.get('/upcoming', async (req, res)=>{
                 AllDeadlines.push(task.deadlineDate);
             }
             else{
-                AllFirstTasks.push("N/A");
+                AllFirstTasks.push("No tasks for this list just yet.");
                 AllDeadlines.push("N/A")
             }
             
