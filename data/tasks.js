@@ -45,9 +45,54 @@ let exportedMethods = {
     //const alltasks = await tasksCollection.find({_id: { $in: }}).toArray();
   },
 
-  async getAll(ids){
+  async getAll(userId, tasklistId, ids){
+
+    // //the ids are an array of task ids.
+    // const allListsForUser = taskListData.getAllForAUser(userId);
+
+    // let listBelongUser = false;
+    // for(let x of allListsForUser){
+    //   if(x._id === tasklistId){
+    //     listBelongUser = true;
+    //   }
+    // }
+
+    // if (listBelongUser === false){
+    //   throw "this list doesn't belong to this user.";
+    // }
+
+    // const targetList = taskListData.get(tasklistId);
+
+    // let allTasksForList = targetList.tasks;
+
+    // let tasksBelongList = false;
+
+    // for (let y of ids){
+    //   tasksBelongList =false;
+
+    //   for (let z of allTasksForList){
+    //     if (z === y){
+    //       tasksBelongList = true;
+    //       continue;
+    //     }
+    //   }
+    // }
+
+    // if(tasksBelongList === false){
+    //   throw "some tasks in this list doesn't belong to its corresponding list.";
+    // }
+
+
+    for (let x of ids){
+      let tempTask = await this.get(x);
+
+      if(tempTask.userId !== userId || tempTask.taskListId !== tasklistId){
+        throw "these tasks don't belong to this user or don't belong to this task list.";
+      }
+    }
+
     const tasksCollection = await tasks();
-   const alltasks = await tasksCollection.find({_id: { $in: ids }}).toArray();
+    const alltasks = await tasksCollection.find({_id: { $in: ids }}).toArray();
     PriorityInDescendingorder = alltasks.sort(compare);
     return PriorityInDescendingorder;
   },

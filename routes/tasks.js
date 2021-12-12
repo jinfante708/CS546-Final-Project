@@ -9,7 +9,7 @@ const tasklistData = require("../data/tasklists");
 router.get('/tasksfortasklist/:id', async (req, res) => {
   try {  
     const tasklist= await tasklistData.get(req.params.id)
-    const allTasks = await tasksData.getAll(tasklist.tasks)
+    const allTasks = await tasksData.getAll(req.session.user._id, req.params.id, tasklist.tasks)
     var t=[]
     for(i=0;i<allTasks.length;i++)
     {

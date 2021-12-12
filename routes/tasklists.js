@@ -37,7 +37,7 @@ router.get('/', async (req,res) =>{
         return;
     }
 
-    if(!userData.valid)
+
 
     try{
         // let AllTaskList = await taskListsData.getAll();
@@ -90,7 +90,7 @@ router.get('/upcoming', async (req, res)=>{
         let AllFirstTasks = [];
         let AllDeadlines = [];
         for (let y of filtered){
-            let temp2 = await taskData.getAll(y.tasks);
+            let temp2 = await taskData.getAll(req.session.user._id, y._id, y.tasks);
 
             let temp3 = [];
             for (let z of temp2){
@@ -120,6 +120,7 @@ router.get('/upcoming', async (req, res)=>{
         for (let i = 0; i < filtered.length; i ++){
             let temp = {
                 listName: filtered[i].listName,
+                listId: filtered[i]._id,
                 deadline: AllDeadlines[i],
                 firstTask: AllFirstTasks[i]
             }
@@ -171,15 +172,12 @@ router.post('/', async (req,res) =>{
     }
 
     if(!req.session.user){
-        // res.status(400).json({error: 'user does not exists.'});
         res.redirect('/');
         return;
     }
 
 
     let duplicated = await taskListsData.checkDuplicate(req.session.user._id, listInfo.listName);
-
-    console.log(duplicated);
 
     if(duplicated){
         res.status(400).json({error: 'List with this name has already been created.'});
