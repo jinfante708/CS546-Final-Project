@@ -43,10 +43,6 @@ $(document).ready(function () {
 
     function submit(list){
 
-        console.log(list);
-
-        
-        
 
         let requestConfig = {
             url: "/tasklists",
@@ -59,19 +55,13 @@ $(document).ready(function () {
                 window.location.href = "/tasklists";
                 error.html(data);
             },
-            // complete: function (data) {
-            //     // $("#error").addClass("d-none");
-
-            //     let er = data.responseJSON.error
-            //     error.html(er);
-            // },
+     
             error: function (data) {
 
                 let er = data.responseJSON.error;
 
-                console.log(er);
-                // $("#error").html(data.responseJSON.error);
-                // $("#error").removeClass("d-none");
+
+      
 
                 error.html(er);
             },
@@ -79,81 +69,6 @@ $(document).ready(function () {
         $.ajax(requestConfig);
 
 
-        // $.ajax(requestConfig).then(function (response){
-            
-        //     window.location.href = "/tasklists";
-            
-        // })
+
     }
   });
-  
-
-
-// (function ($) {
-//     let hasErrors = false;
-
-//     $(document).on("submit", "createNewList", function (event) {
-//         event.preventDefault();
-
-//         // hasErrors = false;
-
-//         $("#error").addClass("d-none");
-
-//         // const firstName = $("#firstName");
-//         // const lastName = $("#lastName");
-//         // const email = $("#email");
-//         // const dateOfBirth = $("#dateOfBirth");
-//         // const password = $("#password");
-
-
-//         const input = $("#listName");
-
-//         // const user = {
-//         //     firstName: firstName.val().trim(),
-//         //     lastName: lastName.val().trim(),
-//         //     email: email.val().trim(),
-//         //     dateOfBirth: dateOfBirth.val().trim(),
-//         //     password: password.val(),
-//         // };
-
-//         alert(`the input length is ${input.val().trim().length}`)
-//         if(input.val().trim().length == 0){
-//             $("#error").html("you need to provide a list name");
-//             $("#error").removeClass("d-none");
-
-//             return;
-//         }
-//         else{
-//             const newList = {
-//                 listName: input.val().trim(),
-//             }
-    
-//             submitForm(newList);
-//         }
-        
-//     });
-
-//     function submitForm(list) {
-//         $.ajax({
-//             url: "/tasklists",
-//             method: "POST",
-//             contentType: "application/json",
-//             data: JSON.stringify(list),
-//             beforeSend: function () {
-//                 $("#error").removeClass("d-none");
-//             },
-//             success: function () {
-//                 window.location.href = "/tasklists";
-//             },
-//             complete: function () {
-//                 $("#error").addClass("d-none");
-//             },
-//             error: function (data) {
-//                 $("#error").html(data.responseJSON.error);
-//                 $("#error").removeClass("d-none");
-//             },
-//         });
-//     }
-
-    
-// })(jQuery);
