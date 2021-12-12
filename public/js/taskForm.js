@@ -26,7 +26,9 @@
             if (
                 !date ||
                 !moment(date, "MM/DD/YYYY", true).isValid() ||
-                moment(date, "MM/DD/YYYY").isBefore(moment())
+                moment(date, "MM/DD/YYYY").isBefore(
+                    moment().format("MM/DD/YYYY")
+                )
             ) {
                 hasErrors = true;
                 return false;
