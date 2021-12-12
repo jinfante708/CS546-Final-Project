@@ -90,11 +90,11 @@ cron.schedule("* * 07 * * *", async () => {
     let email = user.email;
     let tasklists = user.taskLists;
     for (let tasklistId of tasklists) {
-      let tasklist = tasklistsData.get(tasklistId);
+      let tasklist = await tasklistsData.get(tasklistId);
       let tasklistName = tasklist.listName;
       let tasks = tasklist.tasks;
       for (let taskId of tasks) {
-        let task = tasksData.get(taskId, userId);
+        let task = await tasksData.get(taskId, userId);
         let taskName = task.name;
         // Deadline date should be in MM/DD/YYYY format
         let deadline = task.deadlineDate;
