@@ -51,16 +51,16 @@ let exportedMethods = {
     return PriorityInDescendingorder;
   },
 
-  async gettasklistid(taskid)
-  { 
+  async gettasklistid(taskid,userid)
+  {   userid = validatetId(xss(userid))
     const id = validatetId(xss(taskid)); 
     const taskListCollection = await taskLists();
     const alltasklist = await taskListCollection.find().toArray();
     let a
     alltasklist.forEach(element => {
       for(i=0;i<element.tasks.length;i++)
-      {
-        if(element.tasks[i]==id)
+      { 
+        if(element.tasks[i]==id && element.userId==userid)
         a =element._id
       }
     });
@@ -68,29 +68,32 @@ let exportedMethods = {
     {
       throw "no tasklist with given taskId"
     }
+
     return a;
   },
 
   
   
- async get(id){
+ async get(id, userid){
   const Id = validatetId(xss(id)); 
+   userid = validatetId(xss(userid)); 
   const tasksCollection = await tasks();
-  const task= await tasksCollection.findOne({ _id: Id});
+  const task= await tasksCollection.findOne({ _id: Id}, {userId: userid});
   if (!task) {
   throw "task not found"
   }
   return task
 },
 
-  async remove(id){
+  async remove(id,userid){
     const Id = validatetId(xss(id)); 
+    userid = validatetId(xss(userid))
     const tasksCollection = await tasks();
     let today = new Date();
 
     let date = (today.getMonth()+1)+'/'+today.getDate()+'/'+today.getFullYear();
     
-     let doc = await this.get(Id)
+     let doc = await this.get(Id,userid)
       const updated = {     
         name: doc.name,
         urgency: doc.urgency, 
@@ -106,7 +109,7 @@ let exportedMethods = {
              };
               
              let updateInfo = await tasksCollection.updateOne(
-               { _id: Id },
+               { _id: Id ,userId:userid},
                { $set: updated }
              );
              if (updateInfo.modifiedCount !== 1) {
@@ -116,15 +119,16 @@ let exportedMethods = {
        return {"taskID": Id, "deleted": true}
  },
 
-  async complete(id){
+  async complete(id,userid){
        const Id = validatetId(xss(id)); 
+       userid=validatetId(xss(id))
         const tasksCollection = await tasks();
         let today = new Date();
     
         let date = (today.getMonth()+1)+'/'+today.getDate()+'/'+today.getFullYear();
     
         
-         let doc = await this.get(Id)
+         let doc = await this.get(Id,userid)
 
           const updated = {     
             name: doc.name,
@@ -139,15 +143,12 @@ let exportedMethods = {
             dateOfCreation: doc.dateOfCreation, 
             priority: doc.priority   
                  };
-                  
                  let updateInfo = await tasksCollection.updateOne(
-                   { _id: Id },
-                   { $set: updated }
-                 );
-
+                  { _id: Id },
+                  { $set: updated }
+                );
                  if (updateInfo.modifiedCount !== 1) {
-                  throwError
-                    "Could not update"
+                  throw "Could not update"
                 
                 }
 
@@ -160,7 +161,12 @@ let exportedMethods = {
 
       const targetUser = await userData.get(userId);
     
-    name=name.trim()
+  
+
+    if(!verify.validString(name))
+    {
+     throw "Name is not valid"
+    }
 
     if(!verify.validDate(deadlineDate))
     {
@@ -222,9 +228,11 @@ let exportedMethods = {
   },
 
 
-async update (id,name,importance, deadlineDate){
+async update (id,name,importance, deadlineDate,userid){
 
   id = validatetId(xss(id)); 
+ 
+  userId = validatetId(xss(userid)); 
 
   if(!verify.validString(name)){
     throw "Name is not valid";
@@ -245,7 +253,7 @@ if(!verify.validNumber(importance))
 }
   // console.log(name)
         const tasksCollection = await tasks();
-         let doc = await this.get(id)
+         let doc = await this.get(id,userid)
 
         
     let arr =  deadlineDate.split("/");
@@ -294,7 +302,7 @@ if(!verify.validNumber(importance))
           throw  "Could not update "
          }
     
-       return await this.get(id);    
+       return await this.get(id,userid);    
 }
 };
 

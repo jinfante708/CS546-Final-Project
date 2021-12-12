@@ -74,7 +74,7 @@ router.post('/complete/:id', async (req, res) => {
   try {
     const id = validatetId(xss(req.params.id));
   
-   const  tasklistid = await tasksData.gettasklistid(id)
+   const  tasklistid = await tasksData.gettasklistid(id,req.session.user._id)
        
   const tasklistforuser =  await tasklistData.getAllForAUser(req.session.user._id)
  
@@ -83,11 +83,12 @@ router.post('/complete/:id', async (req, res) => {
     throw "TasklistId not exists for the user in session"
    }
  
-    const completedtask = await tasksData.complete(id);
+    const completedtask = await tasksData.complete(id,req.session.user._id);
 
 
     res.redirect(`/tasks/tasksfortasklist/${tasklistid}`)
   } catch (e) {  
+    console.log(e)
     res.status(400).json({error: e});
   }
   
@@ -101,7 +102,7 @@ router.post('/delete/:id', async (req, res) => {
 
     try {
       const id = validatetId(xss(req.params.id));
-    const  tasklistid = await tasksData.gettasklistid(id)
+    const  tasklistid = await tasksData.gettasklistid(id, req.session.user._id)
        
       const tasklistforuser =  await tasklistData.getAllForAUser(req.session.user._id)
      
@@ -110,10 +111,11 @@ router.post('/delete/:id', async (req, res) => {
         throw "TasklistId not exists for the user in session"
        }
        
-      const deletedtask = await tasksData.remove(id);
+      const deletedtask = await tasksData.remove(id,req.session.user._id);
   
        res.redirect(`/tasks/tasksfortasklist/${tasklistid}`)
     } catch (e) {  
+      console.log(e)
       res.status(400).json({error: e});
     }
   });
@@ -139,10 +141,11 @@ router.post('/', async (req, res) => {
 
   importance  = parseInt(importance);
 
-  // if(!verify.validNumber(xss(importance)))
-  // {
-  //   throw "Importance not a valid number";
-  // }
+  if(!verify.validFormNumber(importance))
+    {
+      throw "Importance not a valid number";
+    }
+
 
    const newTask = await tasksData.create( req.session.user._id, name,  importance,  deadlineDate)
     const tasklist= await tasklistData.addTask(req.body.tasklistid,newTask._id)
@@ -163,16 +166,16 @@ router.get('/edit/:id', async (req, res) => {
 
   try {
     const id = validatetId(xss(req.params.id));
-    const tasklistid = await tasksData.gettasklistid(id)
+    const tasklistid = await tasksData.gettasklistid(id,req.session.user._id)
     const tasklistforuser =  await tasklistData.getAllForAUser(req.session.user._id)
     if(!tasklistforuser.includes(tasklistid))
     {
       throw "TasklistId not exists for the user in session"
      }
-    const task = await tasksData.get(id);
-    console.log(task.name)
+    const task = await tasksData.get(id, req.session.user._id);
      res.render('tasks/edit-task',{task: task})
   } catch (e) {  
+    console.log(e)
     res.status(500).json({error: e});
    
   }
@@ -187,7 +190,7 @@ router.get('/:id', async (req, res) => {
 
   try {
     const id = validatetId(xss(req.params.id));
-    const tasklistid = await tasksData.gettasklistid(id)
+    const tasklistid = await tasksData.gettasklistid(id, req.session.user._id)
        
     const tasklistforuser =  await tasklistData.getAllForAUser(req.session.user._id)
    
@@ -196,7 +199,7 @@ router.get('/:id', async (req, res) => {
       throw "TasklistId not exists for the user in session"
      }
 
-    const currenttask = await tasksData.get(id);
+    const currenttask = await tasksData.get(id,req.session.user._id);
     res.status(200).json(currenttask);
   } catch (e) {   
     res.status(400).json({ error: e });
@@ -212,7 +215,7 @@ router.put('/:id', async (req, res) => {
   const taskdetails = req.body;
   try {
      const id = validatetId(xss(req.params.id));
-     const tasklistid = await tasksData.gettasklistid(id)
+     const tasklistid = await tasksData.gettasklistid(id, req.session.user._id)
        
      const tasklistforuser =  await tasklistData.getAllForAUser(req.session.user._id)
     
@@ -237,28 +240,21 @@ if(!verify.validDate(xss(deadlineDate)))
 }
 
 importance  = parseInt(importance);
-// console.log(importance)
-// console.log(typeof(importance))
 
-// if(typeof(importance)!=number)
-// {
-//   throw "importance not a valid number"
-// }
-
-// if(!verify.validNumber(xss(importance)))
-// {
-//   throw "Importance not a valid number";
-// }
-
+if(!verify.validFormNumber(importance))
+{
+  throw "Importance not a valid number";
+}
 
       const updatedtask = await tasksData.update(id,
         name,
         importance, 
-        deadlineDate
+        deadlineDate, req.session.user._id
         )
 
      res.json({tasklistid: tasklistid})
     } catch (e) {
+      console.log(e)
       res.status(400).json({ error: e });
      }
   });

@@ -89,7 +89,7 @@ router.get('/upcoming', async (req, res)=>{
         for (let y of filtered){
             if(y.tasks.length > 0){
 
-                let task = await taskData.get(y.tasks[0]);
+                let task = await taskData.get(y.tasks[0], req.session.user._id);
                 AllFirstTasks.push(task.name);
                 AllDeadlines.push(task.deadlineDate);
             }
