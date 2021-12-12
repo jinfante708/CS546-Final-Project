@@ -4,31 +4,34 @@ const express = require('express');
 const router = express.Router();
 const verify = require("../data/verify");
 let {ObjectId} = require('mongodb')
+const tasklistData = require("../data/tasklists");
 
-router.get('/', async (req, res) => {
-  try {
-    const allTasks = await tasksData.getAll()
+router.get('/tasksfortasklist/:id', async (req, res) => {
+  try {  
+    const tasklist= await tasklistData.get(req.params.id)
+    const allTasks = await tasksData.getAll(tasklist.tasks)
     var t=[]
     for(i=0;i<allTasks.length;i++)
     {
       if (allTasks[i].isDeleted==false && allTasks[i].isCompleted==false  )
       {t.push(allTasks[i])}
     }
-  res.render('tasklists/upcoming',{tasks:t});
+   res.render('tasklists/tasklist',{tasks:t, tasklistname: tasklist.listName, tasklistid: tasklist._id});
   } catch (e) {
     res.status(400).json({ error: e });
   }
 });
 
 
-router.get('/addnewtask', async (req, res) => {
-  res.render('tasks/add-task');
+router.get('/addnewtask/:id', async (req, res) => {
+  res.render('tasks/add-task',{taskid: req.params.id});
 });
 
 router.post('/complete/:id', async (req, res) => {
   try {
     const completedtask = await tasksData.complete(req.params.id);
-     res.redirect('/tasks/')
+    const tasklistid = await tasksData.gettasklistid(req.params.id)
+    res.redirect(`/tasks/tasksfortasklist/${tasklistid}`)
   } catch (e) {  
     res.status(400).json({ message: e});
   }
@@ -37,7 +40,8 @@ router.post('/complete/:id', async (req, res) => {
 router.post('/delete/:id', async (req, res) => {
     try {
       const deletedtask = await tasksData.remove(req.params.id);
-       res.redirect('/tasks/')
+      const tasklistid = await tasksData.gettasklistid(req.params.id)
+       res.redirect(`/tasks/tasksfortasklist/${tasklistid}`)
     } catch (e) {  
       res.status(400).json({ message: e});
     }
@@ -45,10 +49,12 @@ router.post('/delete/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
   const taskdetails = req.body;
- 
+// console.log("HI" , req.body)
    try {
-     const {name, importance, deadlineDate} = taskdetails;
-     const newTask = await tasksData.create( name,  importance,  deadlineDate)
+    const {name, importance, deadlineDate} = taskdetails;
+   const newTask = await tasksData.create( name,  importance,  deadlineDate)
+    const tasklist= await tasklistData.addTask(req.body.tasklistid,newTask._id)
+     res.json(req.body.tasklistid)
    } catch (e) {
        console.log(e)
      res.status(400).json({ error: e });
@@ -89,8 +95,9 @@ router.put('/:id', async (req, res) => {
         importance, 
         deadlineDate
         )
-  
-    res.redirect('/tasks')
+        
+      const tasklistid = await tasksData.gettasklistid(req.params.id)
+     res.json({tasklistid: tasklistid})
     } catch (e) {
     console.log(e)
       res.status(400).json({ error: e });

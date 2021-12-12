@@ -1,0 +1,70 @@
+
+<h1>
+    Tasks For {{tasklistname}}
+</h1>
+
+{{!-- 
+<ul id = "upcoming_tasks">
+    {{#each firstTasks}}
+
+    <li>{{this}}</li>
+
+    {{/each}}
+</ul>
+ --}}
+
+
+  <div class="container py-5 h-100" style="background-color: #e2d5de;">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col col-xl-10">
+
+        <div class="card" style="border-radius: 15px;">
+          <div class="card-body p-5">
+
+            {{!-- <h6 class="mb-3">{{tasklistname}}</h6> --}}
+
+            <ul class="list-group mb-0">
+           {{#each  tasks}}
+                <li class="list-group-item d-flex d-flex justify-content-between align-items-center border-start-0 border-top-0 border-end-0 border-bottom rounded-0 mb-2">
+                <div class="d-flex align-items-center">
+                
+                  {{this.name}}
+                </div>
+                 <form action="/tasks/delete/{{this._id}}" id="deletetask-form" method="POST" class="d-flex justify-content-center align-items-center mb-4">
+             <Button>DELETE TASK</Button>
+            </form>
+               
+                <a href="" data-mdb-toggle="tooltip" title="Remove item">
+                  <i class="fas fa-times text-primary"></i>
+                </a>
+                  <form action="/tasks/complete/{{this._id}}" id="completetask-form" method="POST" class="d-flex justify-content-center align-items-center mb-4">
+                 <Button>TASK COMPLETED</Button>
+                   </form>
+                <a href="" data-mdb-toggle="tooltip" title="Remove item">
+                  <i class="fas fa-times text-primary"></i>
+                </a>
+                 <a href="/tasks/edit/{{this._id}}" >
+                        <Button>EDIT TASK</Button>
+                    </a>
+                <a href="" data-mdb-toggle="tooltip" title="Remove item">
+                  <i class="fas fa-times text-primary"></i>
+                </a>
+              </li>
+        {{/each}}
+            </ul>
+                 <a href="/tasks/addnewtask/{{tasklistid}}" >
+            {{!-- <form action="tasks/addnewtask" id="add-form" method="GET" class="d-flex justify-content-center align-items-center mb-4"> --}}
+              <button type="submit" class="btn btn-primary btn-lg ms-2">Add A NEW TASK</button>
+            {{!-- </form> --}}
+            </a>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+
+

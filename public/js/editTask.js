@@ -86,17 +86,26 @@ $(document).ready(function () {
     }
 
     if (!hasErrors) {
-      var requestConfig = {
-        method: "PUT",
-        url: `/tasks/${taskInfo._id}`,
+      $.ajax({
+          method: "PUT",
+       url: `/tasks/${taskInfo._id}`,
         contentType: "application/json",
         data: JSON.stringify(taskInfo),
-      };
-
-      $.ajax(requestConfig).then(function (responseMessage) {
-        console.log(responseMessage);
-        window.location.href = "/tasks";
-      });
+        beforeSend: function () {
+            $("#loader-container").removeClass("d-none");
+        },
+        success: function (data) {
+          console.log(data)
+           window.location.href = `/tasks/tasksfortasklist/${data.tasklistid}`;
+        },
+        complete: function () {
+            $("#loader-container").addClass("d-none");
+        },
+        error: function (data) {
+            $("#error-message").html(data.responseJSON.error);
+            $("#error-message").removeClass("d-none");
+        },
+    });
     } else {
       submitBtn.prop("disabled", false);
     }

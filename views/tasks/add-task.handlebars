@@ -1,5 +1,6 @@
 {{!-- Fields given by user: Name, Importance, Deadline Date --}}
 
+
 {{!--
 novalidate attribute is needed for custom Bootstrap form validation messages
 it disables the browser default feedback tooltips, but still provides access to
@@ -12,7 +13,6 @@ the form validation APIs in JavaScript
                 <div class="card-body p-6">
                     <div class="mb-4">
                         <h1 class="mb-1 fw-bold">Create a new task</h1>
-
                         <form id="add-task-form" action="/tasks" class="needs-validation" novalidate>
 
                             <div class="mb-3">
@@ -73,7 +73,7 @@ the form validation APIs in JavaScript
                                 {{/each}}
                             </ul>
                             {{/if}}
-
+                          <input type="hidden" id="task-listid-input" name="task-tasklistid" value={{taskid}}>
                         </form>
                     </div>
                 </div>
