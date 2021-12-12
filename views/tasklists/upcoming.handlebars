@@ -1,17 +1,38 @@
+<h1 class="d-none"></h1>
+<h2 class="d-none"></h2>
+<h3 class="d-none"></h3>
+<h4 class="d-none"></h4>
+<h5 class="d-none"></h5>
+<div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col col-xl-10">
 
-<h1>
-    Upcoming tasks
-</h1>
+            <div class="card" style="border-radius: 15px;">
+                <div class="card-body p-5">
+                    <h1 class="mb-4">
+                        Upcoming tasks
+                    </h1>
 
+                    <div class="list-group">
+                        {{#each firstTasks}}
+                        <a href="javascript:void(0);" class="list-group-item list-group-item-action d-flex gap-3 py-3"
+                            aria-current="true">
+                            <img src="/public/images/alert-icon.png" alt="alert-icon" width="32" height="32"
+                                class="rounded-circle flex-shrink-0">
+                            <div class="d-flex gap-2 w-100 justify-content-between">
+                                <div>
+                                    <p class="mb-0 list-group-list-heading">{{this.listName}}</p>
+                                    <p class="mb-0 opacity-75">{{this.firstTask}}</p>
+                                </div>
+                                <small class="opacity-75 text-nowrap">{{this.deadline}}</small>
+                            </div>
+                        </a>
+                        {{/each}}
+                    </div>
 
-<ul id = "upcoming_tasks">
-    {{#each firstTasks}}
+                </div>
+            </div>
 
-    <li>{{this.listName}}: {{this.firstTask}} | Deadline: {{this.deadline}}</li>
-    {{!-- <li>{{this.listName}}: {{this.firstTask}}</li> --}}
-
-    {{/each}}
-</ul>
-
-
-
+        </div>
+    </div>
+</div>
