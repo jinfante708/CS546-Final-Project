@@ -135,28 +135,28 @@ router.get('/upcoming', async (req, res)=>{
     }
 });
 
-router.get('/:id', async (req, res) =>{// this route is actually not in use
+// router.get('/:id', async (req, res) =>{// this route is actually not in use
 
-    if(!req.session.user){
-        res.redirect('/');
-        return;
-    }
+//     if(!req.session.user){
+//         res.redirect('/');
+//         return;
+//     }
 
     
 
-    try{
-        // let targetList = await taskListsData.get(req.params.id);
-        // res.status(200).json(targetList);
+//     try{
+//         // let targetList = await taskListsData.get(req.params.id);
+//         // res.status(200).json(targetList);
 
-        // should return all the tasks from this list.
+//         // should return all the tasks from this list.
 
-        const id = validateTasklistId(xss(req.params.id));
+//         const id = validateTasklistId(xss(req.params.id));
 
-    }
-    catch(e){
-        res.status(404).json({error: e});
-    }
-});
+//     }
+//     catch(e){
+//         res.status(404).json({error: e});
+//     }
+// });
 
 router.post('/', async (req,res) =>{
     let listInfo = req.body;
