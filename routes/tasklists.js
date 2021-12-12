@@ -37,7 +37,7 @@ router.get('/', async (req,res) =>{
         return;
     }
 
-    if(!userData.valid)
+
 
     try{
         // let AllTaskList = await taskListsData.getAll();
@@ -90,7 +90,7 @@ router.get('/upcoming', async (req, res)=>{
         let AllFirstTasks = [];
         let AllDeadlines = [];
         for (let y of filtered){
-            let temp2 = await taskData.getAll(y.tasks);
+            let temp2 = await taskData.getAll(req.session.user._id, y._id, y.tasks);
 
             let temp3 = [];
             for (let z of temp2){

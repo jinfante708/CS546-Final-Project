@@ -2,7 +2,6 @@ const mongoCollections = require('../config/mongoCollections');
 const taskLists = mongoCollections.tasklists;
 const {ObjectId} = require('mongodb');
 const userData = require('./users');
-const taskData = require('./tasks');
 
 const verify = require ('./verify');
 
