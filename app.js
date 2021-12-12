@@ -85,7 +85,7 @@ cron.schedule("* * 07 * * *", async () => {
     */
   const users = await usersData.getAll();
   for (let user of users) {
-    let user = user._id;
+    let userId = user._id;
     let name = user.firstName;
     let email = user.email;
     let tasklists = user.taskLists;
