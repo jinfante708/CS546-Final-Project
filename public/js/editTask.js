@@ -53,7 +53,7 @@ $(document).ready(function () {
         deadlineDate.removeClass("is-invalid is-valid");
 
         let taskInfo = {
-            _id: id.val(),
+            _id: id.val().trim(),
             name: name.val().trim(),
             importance: importance.val().trim(),
             deadlineDate: deadlineDate.val().trim(),
