@@ -170,7 +170,8 @@ router.get('/edit/:id', async (req, res) => {
       throw "TasklistId not exists for the user in session"
      }
     const task = await tasksData.get(id);
-     res.render('tasks/edit-task',{task: task} )
+    console.log(task.name)
+     res.render('tasks/edit-task',{task: task})
   } catch (e) {  
     res.status(500).json({error: e});
    
