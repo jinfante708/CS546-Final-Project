@@ -76,6 +76,9 @@ router.get('/upcoming', async (req, res)=>{
 
         let AllTaskList = await taskListsData.getAllForAUser(req.session.user._id);
 
+        // const tasklist= await taskListsData.get(req.params.id)
+        // const allTasks = await taskData.getAll(tasklist.tasks)
+
         let filtered = [];
         for (let x  of AllTaskList){
             let temp = await taskListsData.get(x);
@@ -87,9 +90,20 @@ router.get('/upcoming', async (req, res)=>{
         let AllFirstTasks = [];
         let AllDeadlines = [];
         for (let y of filtered){
-            if(y.tasks.length > 0){
+            let temp2 = await taskData.getAll(y.tasks);
 
-                let task = await taskData.get(y.tasks[0]);
+            let temp3 = [];
+            for (let z of temp2){
+                if(z.isDeleted === false && z.isCompleted === false){
+                    temp3.push(z);
+                }
+            }
+
+
+
+            if(temp3.length > 0){
+
+                let task = temp3[0];
                 AllFirstTasks.push(task.name);
                 AllDeadlines.push(task.deadlineDate);
             }
@@ -120,7 +134,7 @@ router.get('/upcoming', async (req, res)=>{
     }
 });
 
-router.get('/:id', async (req, res) =>{
+router.get('/:id', async (req, res) =>{// this route is actually not in use
 
     if(!req.session.user){
         res.redirect('/');
@@ -162,6 +176,16 @@ router.post('/', async (req,res) =>{
         return;
     }
 
+
+    let duplicated = await taskListsData.checkDuplicate(req.session.user._id, listInfo.listName);
+
+    console.log(duplicated);
+
+    if(duplicated){
+        res.status(400).json({error: 'List with this name has already been created.'});
+        return;
+    }
+
     try{
         const newList = await taskListsData.create(listInfo.listName, req.session.user._id);
 
@@ -188,7 +212,7 @@ router.post('/', async (req,res) =>{
 });
 
 
-router.put('/:id', async  (req,res)=>{
+router.put('/:id', async  (req,res)=>{// this is actuallhy not in use too because we don't have a "edit task list" feature
 
     if(!req.params.id){
         throw "you must provide an id.";
