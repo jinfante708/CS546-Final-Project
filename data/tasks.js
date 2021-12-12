@@ -1,6 +1,7 @@
 const mongoCollections = require('../config/mongoCollections.js');
 const tasks= mongoCollections.tasks;
 const taskLists = mongoCollections.tasklists;
+const moment = require("moment")
 const xss = require("xss");
 const uuid = require('uuid');
 const { 
@@ -50,23 +51,6 @@ let exportedMethods = {
 
 
   async getAll(userId, tasklistId, ids){
-
-    if(!verify.validString(userId)){
-      throw "userId is not a valid string.";
-    }
-
-    if (!uuid.validate(userId)){
-      throw "userId is not a valid id.";
-    }
-
-
-    if(!verify.validString(tasklistId)){
-      throw "tasklistId is not a vaild string.";
-    }
-
-    if (!uuid.validate(tasklistId)){
-      throw "tasklistId is not a valid id.";
-    }
   
      if(Array.isArray(ids)===false) 
      throw 'Ids must be an array'
@@ -94,7 +78,7 @@ let exportedMethods = {
     }
 
     const tasksCollection = await tasks();
-    const alltasks = await tasksCollection.find({_id: { $in: a }}).toArray();
+    const alltasks = await tasksCollection.find({_id: { $in: a }}).sort({priority:-1, importance:-1}).toArray();
     PriorityInDescendingorder = alltasks.sort(compare);
     return PriorityInDescendingorder;
   },
@@ -183,11 +167,10 @@ let exportedMethods = {
           },
 
     async create(userId , name, importance, deadlineDate) {
-    //  console.log("here")
+   
       userId = validatetId(xss(userId)); 
 
       const targetUser = await userData.get(userId);
-    
   
 
     if(!verify.validString(name))
@@ -209,40 +192,30 @@ let exportedMethods = {
     }
 
         const tasksCollection = await tasks();
-  
-     
-    let arr =  deadlineDate.split("/");
-     let today = new Date();
-    // var HoursRightNow = today.getHours();
-     
-    let todaydate = (today.getMonth()+1)+'/'+today.getDate()+'/'+today.getFullYear();
-  
-    
-    let deadlinemonth= arr[0]
-    let deadlinedate = arr[1]
-    let deadlineyear = arr[2]
 
-      date2= new Date(deadlineyear,deadlinemonth-1,deadlinedate)
-  
-     const ONE_DAY = 1000 * 60 * 60 * 24;
-     const differenceMs = Math.abs(today-date2);
-     let urgencyformula = 24 * Math.round(differenceMs / ONE_DAY);
-  
-    
-    let priorityformula =  Math.sqrt(Math.pow((240/urgencyformula), 2)+ Math.pow(importance,2))
-    //sqrt(240/(deadline minus time right now in terms of hours)^2 + (importance(integer) input by user) ^2)
+ 
+    let now = moment(moment().format("MM/DD/YYYY")); //todays date
+    let end = moment(moment(deadlineDate).format("MM/DD/YYYY")); // another date
+          let duration = moment.duration(now.diff(end));
+          let Hourdiff = Math.abs( duration.asHours());
+
+
+        
+      
+     let priorityformula =  Math.sqrt(Math.pow((240/Hourdiff), 2)+ Math.pow(importance,2))
+ 
        
         let newtask = {
           _id: uuidv4(),
           userId: userId,
           name: name,
-          urgency: urgencyformula,
+          urgency: Hourdiff,
           importance: importance, 
-          startDate: todaydate, 
-          deadlineDate: deadlineDate, 
+          startDate: now.format("MM/DD/YYYY"), 
+          deadlineDate: end.format("MM/DD/YYYY"), 
           isCompleted: false, 
           isDeleted: false, 
-          dateOfCreation: todaydate,
+          dateOfCreation: now.format("MM/DD/YYYY"),
           priority:priorityformula 
         };
         
@@ -278,39 +251,27 @@ if(!verify.validNumber(importance))
 {
   throw "Importance not a valid number";
 }
-  // console.log(name)
         const tasksCollection = await tasks();
          let doc = await this.get(id,userid)
 
+
+ 
+         let now = moment(moment().format("MM/DD/YYYY")); //todays date
+         let end = moment(moment(deadlineDate).format("MM/DD/YYYY")); // another date
+          let duration = moment.duration(now.diff(end));
+          let Hourdiff = Math.abs( duration.asHours());
         
-    let arr =  deadlineDate.split("/");
-    let today = new Date();
-   // var HoursRightNow = today.getHours();
-    
-   let todaydate = (today.getMonth()+1)+'/'+today.getDate()+'/'+today.getFullYear();
-   let deadlinemonth= arr[0]
-   let deadlinedate = arr[1]
-   let deadlineyear = arr[2]
-     date2= new Date(deadlineyear,deadlinemonth-1,deadlinedate)
- 
-    const ONE_DAY = 1000 * 60 * 60 * 24;
-    const differenceMs = Math.abs(today-date2);
+      
+     let priorityformula =  Math.sqrt(Math.pow((240/Hourdiff), 2)+ Math.pow(importance,2))
+  
 
-    
-    let urgencyformula = 24 * Math.round(differenceMs / ONE_DAY);
- 
-    
-   let priorityformula =  Math.sqrt(Math.pow((240/urgencyformula), 2)+ Math.pow(importance,2))
-   //sqrt(240/(deadline minus time right now in terms of hours)^2 + (importance(integer) input by user) ^2)
-
-    
         const updated = {
           _id: id,
           name: name,
-          urgency: urgencyformula, 
+          urgency: Hourdiff, 
           importance: importance, 
           startDate: doc.startDate, 
-          deadlineDate: deadlineDate, 
+          deadlineDate: end.format("MM/DD/YYYY"), 
           completionDate: doc.completionDate, 
           isCompleted: doc.isCompleted, 
           isDeleted: false, 
