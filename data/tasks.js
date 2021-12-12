@@ -1,13 +1,14 @@
 const mongoCollections = require('../config/mongoCollections.js');
 const tasks= mongoCollections.tasks;
 const taskLists = mongoCollections.tasklists;
+const xss = require("xss");
 const uuid = require('uuid');
 const { 
   v4: uuidv4,
 } = require('uuid');
 const verify = require ('./verify');
 const taskListData = require('./tasklists');
-
+const userData = require('./users');
 
 function compare(a, b) {
   // Use toUpperCase() to ignore character casing
@@ -24,51 +25,72 @@ function compare(a, b) {
 }
 
 
-
 let exportedMethods = {
 
+  async getAll(ids){
+    
+     if(Array.isArray(ids)===false) 
+     throw 'Ids must be an array'
+      let a = []
+  
+     for(i=0;i<ids.length;i++)
+     { 
+      const Id = validatetId(xss(ids[i])); 
+      a.push(Id)
+     }
+  
+    const tasksCollection = await tasks();
+   const alltasks = await tasksCollection.find({_id: { $in: a }}).toArray();
+  
+  // console.log(alltasks)
+
+  //  if(alltasks.length==0)
+  //  {throw "No tasks present for the provided tasklist"}
+
+    PriorityInDescendingorder = alltasks.sort(compare);
+    return PriorityInDescendingorder;
+  },
+
   async gettasklistid(taskid)
-  {
+  { 
+    const id = validatetId(xss(taskid)); 
     const taskListCollection = await taskLists();
     const alltasklist = await taskListCollection.find().toArray();
     let a
     alltasklist.forEach(element => {
       for(i=0;i<element.tasks.length;i++)
       {
-        if(element.tasks[i]==taskid)
+        if(element.tasks[i]==id)
         a =element._id
       }
     });
+    if (a.length==0)
+    {
+      throw "no tasklist with given taskId"
+    }
     return a;
-    // const task= await taskListCollection.findOne({taskid: { $in: tasks}});
-    // console.log(task)
-    //const alltasks = await tasksCollection.find({_id: { $in: }}).toArray();
-  },
-
-  async getAll(ids){
-    const tasksCollection = await tasks();
-   const alltasks = await tasksCollection.find({_id: { $in: ids }}).toArray();
-    PriorityInDescendingorder = alltasks.sort(compare);
-    return PriorityInDescendingorder;
   },
 
   
+  
  async get(id){
-  //  console.log(id)
-  id=id.trim()
+  const Id = validatetId(xss(id)); 
   const tasksCollection = await tasks();
-  const task= await tasksCollection.findOne({ _id: id});
+  const task= await tasksCollection.findOne({ _id: Id});
+  if (!task) {
+  throw "task not found"
+  }
   return task
 },
 
-
   async remove(id){
+    const Id = validatetId(xss(id)); 
     const tasksCollection = await tasks();
     let today = new Date();
 
     let date = (today.getMonth()+1)+'/'+today.getDate()+'/'+today.getFullYear();
     
-     let doc = await this.get(id)
+     let doc = await this.get(Id)
       const updated = {     
         name: doc.name,
         urgency: doc.urgency, 
@@ -84,26 +106,33 @@ let exportedMethods = {
              };
               
              let updateInfo = await tasksCollection.updateOne(
-               { _id: id },
+               { _id: Id },
                { $set: updated }
              );
-       return {"taskID": id, "deleted": true}
+             if (updateInfo.modifiedCount !== 1) {
+              throw  "Could not update"
+            
+            }
+       return {"taskID": Id, "deleted": true}
  },
 
   async complete(id){
+       const Id = validatetId(xss(id)); 
         const tasksCollection = await tasks();
         let today = new Date();
     
         let date = (today.getMonth()+1)+'/'+today.getDate()+'/'+today.getFullYear();
+    
         
-         let doc = await this.get(id)
+         let doc = await this.get(Id)
+
           const updated = {     
             name: doc.name,
             urgency: doc.urgency, 
             importance: doc.importance, 
             startDate: doc.startDate, 
             deadlineDate: doc.deadlineDate, 
-            completionDate: doc.completionDate, 
+            completionDate: date , 
             isCompleted: true, 
             isDeleted: doc.isDeleted, 
             dateOfDeletion: date, 
@@ -112,37 +141,54 @@ let exportedMethods = {
                  };
                   
                  let updateInfo = await tasksCollection.updateOne(
-                   { _id: id },
+                   { _id: Id },
                    { $set: updated }
                  );
-           return {"taskID": id, "completed": true}
+
+                 if (updateInfo.modifiedCount !== 1) {
+                  throwError
+                    "Could not update"
+                
+                }
+
+           return {"taskID": Id, "completed": true}
           },
 
+    async create(userId , name, importance, deadlineDate) {
+    //  console.log("here")
+      userId = validatetId(xss(userId)); 
 
-    async create(name, importance, deadlineDate) {
-      if(!verify.validString(name)){
-        throw "Name is not valid";
-    }
+      const targetUser = await userData.get(userId);
+    
+    name=name.trim()
+
     if(!verify.validDate(deadlineDate))
     {
       throw "Deadline date is Not a valid date";
     }
 
-    // if(!verify.validNumber(importance))
-    // {
-    //   throw "Importance not a valid number";
-    // }
+
+    importance  = parseInt(importance);
+
+    if(!verify.validNumber(importance))
+    {
+      throw "Importance not a valid number";
+    }
+
         const tasksCollection = await tasks();
-        name=name.trim()
+  
      
     let arr =  deadlineDate.split("/");
      let today = new Date();
     // var HoursRightNow = today.getHours();
      
     let todaydate = (today.getMonth()+1)+'/'+today.getDate()+'/'+today.getFullYear();
+  
+    
     let deadlinemonth= arr[0]
     let deadlinedate = arr[1]
     let deadlineyear = arr[2]
+
       date2= new Date(deadlineyear,deadlinemonth-1,deadlinedate)
   
      const ONE_DAY = 1000 * 60 * 60 * 24;
@@ -155,8 +201,7 @@ let exportedMethods = {
        
         let newtask = {
           _id: uuidv4(),
-          //userId: userId,
-          //taskListId: taskListId,
+          userId: userId,
           name: name,
           urgency: urgencyformula,
           importance: importance, 
@@ -177,27 +222,30 @@ let exportedMethods = {
   },
 
 
-
 async update (id,name,importance, deadlineDate){
+
+  id = validatetId(xss(id)); 
+
+  if(!verify.validString(name)){
+    throw "Name is not valid";
+}
+
+name=name.trim()
+
+if(!verify.validDate(deadlineDate))
+{
+  throw "Deadline date is Not a valid date";
+}
+
+importance  = parseInt(importance);
+
+if(!verify.validNumber(importance))
+{
+  throw "Importance not a valid number";
+}
   // console.log(name)
         const tasksCollection = await tasks();
-        if(!verify.validString(name)){
-          throw "Name is not valid";
-      }
-      if(!verify.validDate(deadlineDate))
-      {
-        throw "Deadline date is Not a valid date";
-      }
-  
-      // if(!verify.validNumber(importance))
-      // {
-      //   throw "Importance not a valid number";
-      // }
-        
          let doc = await this.get(id)
-  
-        id=id.trim()
-        name=name.trim()
 
         
     let arr =  deadlineDate.split("/");
@@ -213,9 +261,10 @@ async update (id,name,importance, deadlineDate){
     const ONE_DAY = 1000 * 60 * 60 * 24;
     const differenceMs = Math.abs(today-date2);
 
+    
     let urgencyformula = 24 * Math.round(differenceMs / ONE_DAY);
  
-   
+    
    let priorityformula =  Math.sqrt(Math.pow((240/urgencyformula), 2)+ Math.pow(importance,2))
    //sqrt(240/(deadline minus time right now in terms of hours)^2 + (importance(integer) input by user) ^2)
 
@@ -240,9 +289,39 @@ async update (id,name,importance, deadlineDate){
           { _id: id},
           { $set: updated }
         );
+
+        if (updateInfo.modifiedCount !== 1) {
+          throw  "Could not update "
+         }
     
        return await this.get(id);    
 }
 };
 
+const validatetId = (_Id) => {
+  if (!verify.validString(_Id)) {
+    
+      throw "Id passed is Not a valid id";
+    
+  }
+
+  const Id = _Id.trim();
+
+  const PROJECT_UUID_VERSION = 4;
+
+  if (
+    !uuid.validate(Id) ||
+    uuid.version(Id) !== PROJECT_UUID_VERSION
+  ) {
+      throw "Id passed is Not a valid id";
+  }
+
+  return Id;
+};
+
 module.exports = exportedMethods;
+
+
+
+
+
