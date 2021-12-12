@@ -55,3 +55,8 @@
         margin-top: 7rem;
     }
 }
+
+.list-group-list-heading {
+    font-size: 1rem;
+    font-weight: 500;
+}

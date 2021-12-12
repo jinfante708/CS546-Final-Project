@@ -1,49 +1,86 @@
-{{!-- Fields to be edited by user: First Name, Last Name, Date of Birth --}}
-<h1>Edit your profile</h1>
-{{!-- Remove action and method attribute since we're using AJAX here --}}
-<form id="edit-user-profile" class="needs-validation" novalidate>
-    <div class="form-group">
-        <label for="first-name-input">First Name</label>
-        <input type="text" id="first-name-input" name="firstName" placeholder="First Name" value={{user.firstName}}>
-        <div class="valid-feedback">
-            Looks good!
-        </div>
-        <div class="invalid-feedback">
-            Please provide a first name
+<div class="container d-flex flex-column mt-4">
+    <div class="row align-items-center justify-content-center g-0">
+        <div class="col-lg-5 col-md-8 py-8 py-xl-0">
+            <div class="card shadow">
+                <div class="card-body p-6">
+
+
+                    <div class="mb-4">
+                        <h1 class="mb-1 fw-bold">Edit your profile</h1>
+                    </div>
+
+                    <form id="edit-user-profile" class="needs-validation" novalidate>
+
+                        <div class="mb-3">
+                            <label for="first-name-input" class="form-label">First Name<span
+                                    class="mandatory">*</span></label>
+                            <input type="text" id="first-name-input" class="form-control" name="firstName"
+                                placeholder="First Name" value={{user.firstName}} required="required"
+                                autocomplete="off" />
+                            <div class="valid-feedback">
+                                Looks good!
+                            </div>
+                            <div class="invalid-feedback">
+                                First name is mandatory.
+                            </div>
+                            <div class="invalid-feedback">
+                                First name should have only alphabetical characters and/or spaces.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="last-name-input" class="form-label">Last Name<span
+                                    class="mandatory">*</span></label>
+                            <input type="text" id="last-name-input" class="form-control" name="lastName"
+                                placeholder="Last Name" value={{user.lastName}} required="required"
+                                autocomplete="off" />
+                            <div class="valid-feedback">
+                                Looks good!
+                            </div>
+                            <div class="invalid-feedback">
+                                Last name is mandatory.
+                            </div>
+                            <div class="invalid-feedback">
+                                Last name should have only alphabetical characters and/or spaces.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="date-of-birth-input" class="form-label">Date of Birth<span
+                                    class="mandatory">*</span></label>
+                            <input type="text" id="date-of-birth-input" class="form-control" name="dateOfBirth"
+                                placeholder="Date of Birth" value={{user.dateOfBirth}} required="required"
+                                autocomplete="off" />
+                            <div class="valid-feedback">
+                                Looks good!
+                            </div>
+                            <div class="invalid-feedback">
+                                Date of birth is mandatory.
+                            </div>
+                            <div class="invalid-feedback">
+                                Date of birth should be before today's date.
+                            </div>
+                            <div class="invalid-feedback">
+                                Date of birth should be valid date with format `mm/dd/yyyy`.
+                            </div>
+                        </div>
+
+                        <p class="text-danger d-none" id="error-message"></p>
+
+                        <div>
+                            <div class="d-grid">
+                                <button type="submit" id="submitButton" name="submitButton" class="btn btn-primary">Save
+                                    Profile</button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+
+            </div>
         </div>
     </div>
+</div>
 
-    <div class="form-group">
-        <label for="last-name-input">Last Name</label>
-        <input type="text" id="last-name-input" name="lastName" placeholder="Last Name" value={{user.lastName}}>
-        <div class="valid-feedback">
-            Looks good!
-        </div>
-        <div class="invalid-feedback">
-            Please provide a last name
-        </div>
-    </div>
-
-    <div class="form-group">
-        <label for="date-of-birth-input">Date of Birth</label>
-        <input type="text" id="date-of-birth-input" name="dateOfBirth" placeholder="Date of Birth" value={{user.dateOfBirth}}>
-        <div class="valid-feedback">
-            Looks good!
-        </div>
-        <div class="invalid-feedback">
-            Please provide a valid date in MM/DD/YYYY format
-        </div>
-    </div>
-
-    {{#if hasErrors}}
-        <ul class="error-list">
-            {{#each errors}}
-                <li>{{this}}</li>
-            {{/each}}
-        </ul>
-    {{/if}}
-
-    <button type="submit" id="submitButton" name="submitButton">Save Profile</button>
-</form>
 <script type="text/JavaScript" src="https://momentjs.com/downloads/moment.js"></script>
 <script src="/public/js/editProfile.js"></script>
