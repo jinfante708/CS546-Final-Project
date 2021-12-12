@@ -1,9 +1,11 @@
 const express = require("express");
 const cron = require("node-cron");
 const nodemailer = require("nodemailer");
+let smtpTransport = require("nodemailer-smtp-transport");
 const session = require("express-session");
 const configRoutes = require("./routes");
 const { engine } = require("express-handlebars");
+const moment = require("moment");
 
 const static = express.static(__dirname + "/public");
 const app = express();
@@ -29,13 +31,13 @@ app.set("views", "./views");
 
 //used for removing cache and handling back buttons after sign-ups or logins
 app.use(function (request, response, next) {
-    response.header(
-        "Cache-Control",
-        "private, no-cache, no-store, must-revalidate"
-    );
-    response.header("Expires", "-1");
-    response.header("Pragma", "no-cache");
-    next();
+  response.header(
+    "Cache-Control",
+    "private, no-cache, no-store, must-revalidate"
+  );
+  response.header("Expires", "-1");
+  response.header("Pragma", "no-cache");
+  next();
 });
 
 app.use(
@@ -49,12 +51,12 @@ app.use(
 
 //Changing request method
 app.use(function (request, response, next) {
-    if (request.body && request.body._method) {
-        request.method = request.body._method;
-        delete request.body._method;
-    }
+  if (request.body && request.body._method) {
+    request.method = request.body._method;
+    delete request.body._method;
+  }
 
-    next();
+  next();
 });
 
 configRoutes(app);
@@ -63,14 +65,15 @@ configRoutes(app);
 // This is a costly operation but it only happens once a day
 cron.schedule("* * 07 * * *", async () => {
   // Create a SMTP transporter object
-  let transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.user,
-      pass: process.env.pass,
-    },
-  });
-
+  let transporter = nodemailer.createTransport(
+    smtpTransport({
+      service: "Gmail",
+      auth: {
+        user: process.env.user,
+        pass: process.env.pass,
+      },
+    })
+  );
   /* Loop through users
         - Grab their first name
         - Grab their email
@@ -83,50 +86,54 @@ cron.schedule("* * 07 * * *", async () => {
                            A friendly reminder that your deadline for the task {{task_name}} in the
                            task list {{tasklistName}} is due tomorrow ({{Insert tomorrow's date here}})!"
     */
-  const users = await usersData.getAll();
-  for (let user of users) {
-    let userId = user._id;
-    let name = user.firstName;
-    let email = user.email;
-    let tasklists = user.taskLists;
-    for (let tasklistId of tasklists) {
-      let tasklist = await tasklistsData.get(tasklistId);
-      let tasklistName = tasklist.listName;
-      let tasks = tasklist.tasks;
-      for (let taskId of tasks) {
-        let task = await tasksData.get(taskId, userId);
-        let taskName = task.name;
-        // Deadline date should be in MM/DD/YYYY format
-        let deadline = task.deadlineDate;
-        let formattedDeadline = moment(Date.parse(deadline)).format(
-          "MM/DD/YYYY"
-        );
-        let tomorrow = moment().add(1, "days").format("MM/DD/YYYY");
-        if (formattedDeadline === tomorrow) {
-          // Send email for specific task
-          let message = {
-            from: process.env.user,
-            to: email,
-            subject: "Task Deadline Reminder",
-            text: `Good morning ${name}, A friendly reminder that your deadline for the task
+  try {
+    const users = await usersData.getAll();
+    for (let user of users) {
+      let userId = user._id;
+      let name = user.firstName;
+      let email = user.email;
+      let tasklists = user.taskLists;
+      for (let tasklistId of tasklists) {
+        let tasklist = await tasklistsData.get(tasklistId);
+        let tasklistName = tasklist.listName;
+        let tasks = tasklist.tasks;
+        for (let taskId of tasks) {
+          let task = await tasksData.get(taskId, userId);
+          let taskName = task.name;
+          // Deadline date should be in MM/DD/YYYY format
+          let deadline = String(task.deadlineDate);
+          let formattedDeadline = moment(Date.parse(deadline)).format(
+            "MM/DD/YYYY"
+          );
+          let tomorrow = moment().add(1, "days").format("MM/DD/YYYY");
+          if (formattedDeadline === tomorrow) {
+            // Send email for specific task
+            let message = {
+              from: process.env.user,
+              to: email,
+              subject: "Task Deadline Reminder",
+              text: `Good morning ${name}, A friendly reminder that your deadline for the task
               ${taskName} in the task list ${tasklistName} is due tomorrow (${tomorrow}). Good luck!`,
-            html: `<p>Good morning ${name},</p>
+              html: `<p>Good morning ${name},</p>
                      <p>A friendly reminder that your deadline for the task
                      ${taskName} in the task list ${tasklistName} is due tomorrow (${tomorrow}).</p>
                      <p>Good luck!</p>`,
-          };
+            };
 
-          transporter.sendMail(message, (err, info) => {
-            if (err) {
-              console.log(e);
-              return process.exit(1);
-            }
+            transporter.sendMail(message, (err, info) => {
+              if (err) {
+                console.log(err);
+                return process.exit(1);
+              }
 
-            console.log("Message sent: %s", info.messageId);
-          });
+              console.log("Message sent: %s", info.messageId);
+            });
+          }
         }
       }
     }
+  } catch (e) {
+    console.log(e);
   }
 });
 
