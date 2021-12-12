@@ -276,27 +276,6 @@ async function addTask(listId, taskID){
 
 
 
-const today = new Date();//https://stackoverflow.com/questions/1531093/how-do-i-get-the-current-date-in-javascript
-// let year = today.getFullYear().toString();
-// let month = today.getMonth().toString();
-// let day = today.getDate().toString();
-
-// let createtionDate = `${month}/${day}/${year}`;
-
-// console.log(createtionDate);
-
-
-
-
-// let year = today.substring(0,4);
-// let month = today.substring(5,7);
-// let day = today.substring(8,10);
-
-// console.log(year);
-// console.log(month);
-// console.log(day);
-
-
 module.exports = {
     create,
     getAll,
