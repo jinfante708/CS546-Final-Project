@@ -61,7 +61,7 @@ configRoutes(app);
 
 // Run email reminder every 24 hours at 7 AM
 // This is a costly operation but it only happens once a day
-cron.schedule("* * 07 * * *", () => {
+cron.schedule("* * 07 * * *", async () => {
   // Create a SMTP transporter object
   let transporter = nodemailer.createTransport({
     service: "gmail",
@@ -83,17 +83,18 @@ cron.schedule("* * 07 * * *", () => {
                            A friendly reminder that your deadline for the task {{task_name}} in the
                            task list {{tasklistName}} is due tomorrow ({{Insert tomorrow's date here}})!"
     */
-  const users = usersData.getAll();
+  const users = await usersData.getAll();
   for (let user of users) {
+    let userId = user._id;
     let name = user.firstName;
     let email = user.email;
     let tasklists = user.taskLists;
     for (let tasklistId of tasklists) {
-      let tasklist = tasklistsData.get(tasklistId);
+      let tasklist = await tasklistsData.get(tasklistId);
       let tasklistName = tasklist.listName;
       let tasks = tasklist.tasks;
       for (let taskId of tasks) {
-        let task = tasksData.get(taskId);
+        let task = await tasksData.get(taskId, userId);
         let taskName = task.name;
         // Deadline date should be in MM/DD/YYYY format
         let deadline = task.deadlineDate;
