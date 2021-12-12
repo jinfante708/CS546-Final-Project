@@ -204,13 +204,16 @@ async function update(id, listName, tasks, isDeleted, dateOfDeletion){
         throw "you need to provide tasks.";
     }
 
-    if(!isDeleted){
-        throw "you need to provide isDeleted.";
-    }
 
+
+    if(!(dateOfDeletion=="" && isDeleted==false))
+  {      if(!isDeleted){
+    throw "you need to provide isDeleted.";
+}
+      
     if(!dateOfDeletion){
         throw "you need to provide dateOfDeletion";
-    }
+    }}
 
 
     let oldList = await this.get(id);
@@ -288,6 +291,7 @@ async function addTask(listId, taskID){
 
     let sortedList = targetList.tasks.sort(compare);
 
+    console.log(targetList)
     return await this.update(listId, targetList.listName, sortedList, targetList.isDeleted, targetList.dateOfDeletion);
 
     
