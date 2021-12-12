@@ -15,8 +15,8 @@
 
                     <div class="list-group">
                         {{#each firstTasks}}
-                        <a href="/tasks/tasksfortasklist/{{this.listId}}" class="list-group-item list-group-item-action d-flex gap-3 py-3"
-                            aria-current="true">
+                        <a href="/tasks/tasksfortasklist/{{this.listId}}"
+                            class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
                             <img src="/public/images/alert-icon.png" alt="alert-icon" width="32" height="32"
                                 class="rounded-circle flex-shrink-0">
                             <div class="d-flex gap-2 w-100 justify-content-between">
@@ -29,6 +29,10 @@
                         </a>
                         {{/each}}
                     </div>
+
+                    {{#if error}}
+                    <p id="error">{{error}}</p>
+                    {{/if}}
 
                 </div>
             </div>
