@@ -186,64 +186,82 @@ async function get(id){
 
 }
 
-// async function update(id, listName, tasks, isDeleted, dateOfDeletion){
-//     if(!verify.validString(id)){
-//         throw "id is invalid string.";
-//     }
+async function update(id, listName, tasks, isDeleted, dateOfDeletion){
+    if(!verify.validString(id)){
+        throw "id is invalid string.";
+    }
 
-//     if(!verify.validString(listName)){
-//         throw "listName is invalid string.";
-//     }
+    if(!uuid.validate(id)){
+        throw "this id is not a valid id.";
+    }
 
-//     let oldList = await this.get(id);
+    if(!verify.validString(listName)){
+        throw "listName is invalid string.";
+    }
 
-//     let dateOfCreation = oldList.dateOfCreation;
 
-//     const taskListCollection = await taskLists();
+    if(!tasks){
+        throw "you need to provide tasks.";
+    }
 
-//     const newList = {
-//         listName:listName,
-//         tasks: tasks,
-//         isDeleted: isDeleted,
-//         dateOfDeletion: dateOfDeletion,
-//         dateOfCreation: dateOfCreation
-//     }
+    if(!isDeleted){
+        throw "you need to provide isDeleted.";
+    }
 
-//     const updatedInfo = await taskListCollection.updateOne(
-//         {_id:id},
-//         {$set: newList}
-//     )
+    if(!dateOfDeletion){
+        throw "you need to provide dateOfDeletion";
+    }
 
-//     if(updatedInfo.modifiedCount === 0){
-//         throw "cannot update successfully.";
-//     }
 
-//     return await this.get(id);
+    let oldList = await this.get(id);
 
-// }
+    let dateOfCreation = oldList.dateOfCreation;
 
-// async function remove(id){
-//     if(!verify.validString(id)){
-//         throw "this id is invalid.";
-//     }
+    const taskListCollection = await taskLists();
 
-//     const theList = await this.get(id);
+    const newList = {
+        listName:listName,
+        tasks: tasks,
+        isDeleted: isDeleted,
+        dateOfDeletion: dateOfDeletion,
+        dateOfCreation: dateOfCreation
+    }
 
-//     let name = theList.listName;
-//     let tasks = theList.tasks;
+    const updatedInfo = await taskListCollection.updateOne(
+        {_id:id},
+        {$set: newList}
+    )
 
-//     const today = new Date();
+    if(updatedInfo.modifiedCount === 0){
+        throw "cannot update successfully.";
+    }
 
-//     let year = today.getFullYear().toString();
-//     let month = (today.getMonth()+1).toString();//January is 0
-//     let day = today.getDate().toString();
+    return await this.get(id);
 
-//     let deletionDate = `${month}/${day}/${year}`;
+}
 
-//     await this.update(id, name, tasks, true, deletionDate);
+async function remove(id){
+    if(!verify.validString(id)){
+        throw "this id is invalid.";
+    }
 
-//     return await this.get(id);
-// }
+    const theList = await this.get(id);
+
+    let name = theList.listName;
+    let tasks = theList.tasks;
+
+    const today = new Date();
+
+    let year = today.getFullYear().toString();
+    let month = (today.getMonth()+1).toString();//January is 0
+    let day = today.getDate().toString();
+
+    let deletionDate = `${month}/${day}/${year}`;
+
+    await this.update(id, name, tasks, true, deletionDate);
+
+    return await this.get(id);
+}
 
 function compare(a, b) {
     // Use toUpperCase() to ignore character casing
@@ -285,5 +303,6 @@ module.exports = {
     get,
     addTask,
     getAllForAUser,
-    checkDuplicate
+    checkDuplicate,
+    update
 }
