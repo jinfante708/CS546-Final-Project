@@ -293,12 +293,10 @@ router.put("/profile", async (request, response) => {
 
     response.json({ isError: false });
   } catch (error) {
-    response
-      .status(error.code || ErrorCode.INTERNAL_SERVER_ERROR)
-      .render("users/update-profile", {
-        pageTitle: "Update Profile",
-        error: error.message || "Internal server error",
-      });
+    response.status(error.code || ErrorCode.INTERNAL_SERVER_ERROR).json({
+      isError: true,
+      error: error.message || "Internal server error",
+    });
   }
 });
 

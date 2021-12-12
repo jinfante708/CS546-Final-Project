@@ -92,8 +92,6 @@ $(document).ready(function () {
         success: function () {
           window.location.href = "/users/profile";
         },
-      }).then(function (responseMessage) {
-        console.log(responseMessage);
       });
     } else {
       submitBtn.prop("disabled", false);
