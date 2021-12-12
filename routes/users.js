@@ -280,6 +280,18 @@ router.put("/profile", async (request, response) => {
     const lastName = validateLastName(xss(requestPostData.lastName));
     const dateOfBirth = validateDateOfBirth(xss(requestPostData.dateOfBirth));
 
+    const userDetails = request.session.user;
+    if (
+      firstName === userDetails.firstName &&
+      lastName === userDetails.lastName &&
+      dateOfBirth === userDetails.dateOfBirth
+    ) {
+      throwError(
+        ErrorCode.BAD_REQUEST,
+        "No fields have been changed from their original values, so no update has occurred!"
+      );
+    }
+
     const user = await usersData.updateProfile(
       request.session.user._id,
       firstName,
@@ -291,15 +303,12 @@ router.put("/profile", async (request, response) => {
       throwError(ErrorCode.INTERNAL_SERVER_ERROR, "Internal Server Error");
     }
 
-    //Change after UI
-    response.redirect("/");
+    response.json({ isError: false });
   } catch (error) {
-    response
-      .status(error.code || ErrorCode.INTERNAL_SERVER_ERROR)
-      .render("users/update-profile", {
-        pageTitle: "Update Profile",
-        error: error.message || "Internal server error",
-      });
+    response.status(error.code || ErrorCode.INTERNAL_SERVER_ERROR).json({
+      isError: true,
+      error: error.message || "Internal server error",
+    });
   }
 });
 

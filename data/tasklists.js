@@ -2,19 +2,66 @@ const mongoCollections = require('../config/mongoCollections');
 const taskLists = mongoCollections.tasklists;
 const {ObjectId} = require('mongodb');
 const userData = require('./users');
-const taskData = require('./tasks');
 
 const verify = require ('./verify');
 
 const uuid = require ("uuid");//when in use, type _id = uuid.v4();
+const xss = require("xss");
+
+
+const validateUserId = (_userId) => {
+    if (!verify.validString(_userId)) {
+      throw "id should not be empty.";
+    }
+  
+    const userId = _userId.trim();
+  
+    const PROJECT_UUID_VERSION = 4;
+  
+    if (!uuid.validate(userId) || uuid.version(userId) !== PROJECT_UUID_VERSION) {
+      throw "this is not a valid id.";
+    }
+  
+    return userId;
+};
+
+
+const validateTasklistId = (_tasklistId) => {
+    if (!verify.validString(_tasklistId)) {
+      throw "task list id should not be empty.";
+    }
+  
+    const tasklistId = _tasklistId.trim();
+  
+    const PROJECT_UUID_VERSION = 4;
+  
+    if (
+      !uuid.validate(tasklistId) ||
+      uuid.version(tasklistId) !== PROJECT_UUID_VERSION
+    ) {
+      throw "task list id is not a valid id.";
+    }
+  
+    return tasklistId;
+  };
+
+
 
 async function create(listName, userId){
+
+    listName = listName.trim();
     if(!verify.validString(listName)){
         throw "listName is not valid";
     }
 
     if(!verify.validString(userId)){
         throw "userId is not valid";
+    }
+
+    let userId2 = xss(userId);
+
+    if(!uuid.validate(userId2)){
+        throw "userId is not a valid id.";
     }
 
     const today = new Date();
@@ -29,7 +76,7 @@ async function create(listName, userId){
 
     let newTaskList = {
         _id: uuid.v4(),
-        userId: userId,
+        userId: userId2,
         listName: listName,
         tasks: [],
         isDeleted: false,
@@ -54,6 +101,37 @@ async function create(listName, userId){
     return taskList;
 }
 
+
+async function checkDuplicate(userId, listName){
+
+    let userId2 = xss(userId);
+
+    if(!uuid.validate(userId2)){
+        throw "userId is not a valid id."
+    }
+
+
+
+    listName = listName.trim();
+    if(!verify.validString(listName)){
+        throw "listName is not valid";
+    }
+
+    const allLists = await this.getAllForAUser(userId2);
+
+    for(let x of allLists){
+
+        let tempList = await this.get(x);
+
+        if(listName.toLowerCase() === tempList.listName.toLowerCase()){
+            return true;
+        }
+    }
+
+    return false;
+
+}
+
 async function getAll(){
     const taskListCollection = await taskLists();
 
@@ -67,7 +145,14 @@ async function getAllForAUser(userId){
         throw "userId is not valid string.";
     }
 
-    const targetUser = await userData.get(userId);
+    let userId2 = xss(userId);
+
+    if(!uuid.validate(userId2)){
+        throw "user id is not a valid id.";
+    }
+
+
+    const targetUser = await userData.get(userId2);
 
     const targetList = targetUser.taskLists;
     
@@ -79,9 +164,15 @@ async function get(id){
         throw "id is not valid string.";
     }
 
+    let id2 = xss(id);
+
+    if(!uuid.validate(id2)){
+        throw "this id is not a valid id.";
+    }
+
     const taskListCollection = await taskLists();
     
-    const targetList = await taskListCollection.findOne({_id:id});
+    const targetList = await taskListCollection.findOne({_id:id2});
 
     if (targetList === null){
         throw "no task list with this id";
@@ -184,27 +275,6 @@ async function addTask(listId, taskID){
 
 
 
-const today = new Date();//https://stackoverflow.com/questions/1531093/how-do-i-get-the-current-date-in-javascript
-// let year = today.getFullYear().toString();
-// let month = today.getMonth().toString();
-// let day = today.getDate().toString();
-
-// let createtionDate = `${month}/${day}/${year}`;
-
-// console.log(createtionDate);
-
-
-
-
-// let year = today.substring(0,4);
-// let month = today.substring(5,7);
-// let day = today.substring(8,10);
-
-// console.log(year);
-// console.log(month);
-// console.log(day);
-
-
 module.exports = {
     create,
     getAll,
@@ -212,5 +282,6 @@ module.exports = {
     update,
     remove,
     addTask,
-    getAllForAUser
+    getAllForAUser,
+    checkDuplicate
 }

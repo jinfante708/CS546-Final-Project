@@ -2,6 +2,10 @@
     color: #b71c1c;
 }
 
+#error{
+    color: #b71c1c;
+}
+
 #loader-container {
     background: #fff;
     position: fixed;
@@ -50,4 +54,9 @@
     .featurette-heading {
         margin-top: 7rem;
     }
+}
+
+.list-group-list-heading {
+    font-size: 1rem;
+    font-weight: 500;
 }

@@ -68,8 +68,28 @@ let exportedMethods = {
     {
       throw "no tasklist with given taskId"
     }
+       return a;
+  },
 
-    return a;
+
+  async getAll(userId, tasklistId, ids){
+  
+     if(Array.isArray(ids)===false) 
+     throw 'Ids must be an array'
+
+    for (let x of ids){
+       const Id = validatetId(xss(x)); 
+      let tempTask = await this.get(x);
+
+      if(tempTask.userId !== userId || tempTask.taskListId !== tasklistId){
+        throw "these tasks don't belong to this user or don't belong to this task list.";
+      }
+    }
+
+    const tasksCollection = await tasks();
+    const alltasks = await tasksCollection.find({_id: { $in: ids }}).toArray();
+    PriorityInDescendingorder = alltasks.sort(compare);
+    return PriorityInDescendingorder;
   },
 
   

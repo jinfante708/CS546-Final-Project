@@ -87,7 +87,7 @@ cron.schedule("* * 07 * * *", () => {
   for (let user of users) {
     let name = user.firstName;
     let email = user.email;
-    let tasklists = user.tasklists;
+    let tasklists = user.taskLists;
     for (let tasklistId of tasklists) {
       let tasklist = tasklistsData.get(tasklistId);
       let tasklistName = tasklist.listName;
