@@ -23,7 +23,11 @@
 
         // Is date given? Is date of format MM/DD/YYYY?
         function validDate(date) {
-            if (!date || !moment(date, "MM/DD/YYYY", true).isValid()) {
+            if (
+                !date ||
+                !moment(date, "MM/DD/YYYY", true).isValid() ||
+                moment(date, "MM/DD/YYYY").isBefore(moment())
+            ) {
                 hasErrors = true;
                 return false;
             }
@@ -34,89 +38,80 @@
         let form = $("#add-task-form");
         let name = $("#task-name-input");
         let importance = $("#importance-input");
-       let tasklistid= $("#task-listid-input");
+        let tasklistid = $("#task-listid-input");
         let deadlineDate = $("#deadline-input");
         let submitBtn = $("#submitButton");
         let errors = $("#error-list");
 
-     form.submit((event) => {
-    event.preventDefault();
-    hasErrors = false;
-    submitBtn.prop("disabled", true);
-    errors.hide();
+        form.submit((event) => {
+            event.preventDefault();
+            hasErrors = false;
+            // submitBtn.prop("disabled", true);
+            errors.hide();
 
-    name.removeClass("is-invalid is-valid");
-    importance.removeClass("is-invalid is-valid");
-    deadlineDate.removeClass("is-invalid is-valid");
+            name.removeClass("is-invalid is-valid");
+            importance.removeClass("is-invalid is-valid");
+            deadlineDate.removeClass("is-invalid is-valid");
 
-    let taskInfo = {
-      tasklistid: tasklistid.val().trim(),
-      name: name.val().trim(),
-      importance: importance.val().trim(),
-      deadlineDate: deadlineDate.val().trim(),
-    };
+            let taskInfo = {
+                tasklistid: tasklistid.val().trim(),
+                name: name.val().trim(),
+                importance: importance.val().trim(),
+                deadlineDate: deadlineDate.val().trim(),
+            };
 
+            // Client-side error checking for three fields
 
- 
-    // Client-side error checking for three fields
+            // Is the task name a valid string?
+            if (!validString(taskInfo.name)) {
+                name.addClass("is-invalid");
+            } else {
+                name.addClass("is-valid");
+            }
 
-    // Is the task name a valid string?
-    if (!validString(taskInfo.name)) {
-      name.addClass("is-invalid");
-      console.log("invalid name path hit");
-    } else {
-      console.log("valid name path hit");
-      name.addClass("is-valid");
+            // Is importance a valid number?
+            if (!validFormNumber(taskInfo.importance)) {
+                importance.addClass("is-invalid");
+            } else {
+                importance.addClass("is-valid");
+            }
+
+            // Is deadlineDate a valid date?
+            if (!validDate(taskInfo.deadlineDate)) {
+                deadlineDate.addClass("is-invalid");
+            } else {
+                deadlineDate.addClass("is-valid");
+            }
+
+            if (!hasErrors) {
+                // unbind() is deprecated, use .off() instead
+                //form.off().submit();
+                submitnewtaskform(taskInfo);
+            } else {
+                submitBtn.prop("disabled", false);
+            }
+        });
+    });
+
+    function submitnewtaskform(taskInfo) {
+        $.ajax({
+            url: "/tasks",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(taskInfo),
+            beforeSend: function () {
+                $("#loader-container").removeClass("d-none");
+            },
+            success: function (data) {
+                window.location.href = `/tasks/tasksfortasklist/${data}`;
+            },
+            complete: function () {
+                $("#loader-container").addClass("d-none");
+            },
+            error: function (data) {
+                $("#error-message").html(data.responseJSON.error);
+                $("#error-message").removeClass("d-none");
+            },
+        });
     }
-
-    // Is importance a valid number?
-    if (!validFormNumber(taskInfo.importance)) {
-      importance.addClass("is-invalid");
-      console.log("invalid number path hit");
-    } else {
-      console.log("valid number path hit");
-      importance.addClass("is-valid");
-    }
-
-    // Is deadlineDate a valid date?
-    if (!validDate(taskInfo.deadlineDate)) {
-      deadlineDate.addClass("is-invalid");
-      console.log("invalid deadline path hit");
-    } else {
-      deadlineDate.addClass("is-valid");
-      console.log("valid deadline path hit");
-    }
-
-    if (!hasErrors) {
-      // unbind() is deprecated, use .off() instead
-      //form.off().submit();
-      submitnewtaskform(taskInfo);
-    } else {
-      submitBtn.prop("disabled", false);
-    }
-  });
-});
-
-
-  function submitnewtaskform(taskInfo) {
-  $.ajax({
-      url: '/tasks',
-      method: "POST",
-      contentType: "application/json",
-      data: JSON.stringify(taskInfo),
-      beforeSend: function () {
-          $("#loader-container").removeClass("d-none");
-      },
-      success: function (data) {
-         window.location.href = `/tasks/tasksfortasklist/${data}`;
-      },
-      complete: function () {
-          $("#loader-container").addClass("d-none");
-      },
-      error: function (data) {
-          $("#error-message").html(data.responseJSON.error);
-          $("#error-message").removeClass("d-none");
-      },
-  });
-}
 })(jQuery);
