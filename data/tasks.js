@@ -50,6 +50,23 @@ let exportedMethods = {
 
 
   async getAll(userId, tasklistId, ids){
+
+    if(!verify.validString(userId)){
+      throw "userId is not a valid string.";
+    }
+
+    if (!uuid.validate(userId)){
+      throw "userId is not a valid id.";
+    }
+
+
+    if(!verify.validString(tasklistId)){
+      throw "tasklistId is not a vaild string.";
+    }
+
+    if (!uuid.validate(tasklistId)){
+      throw "tasklistId is not a valid id.";
+    }
   
      if(Array.isArray(ids)===false) 
      throw 'Ids must be an array'
