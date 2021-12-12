@@ -92,6 +92,11 @@ $(document).ready(function () {
         success: function () {
           window.location.href = "/users/profile";
         },
+        error: function (data) {
+          submitBtn.prop("disabled", false);
+          $("#error-message").html(data.responseJSON.error);
+          $("#error-message").removeClass("d-none");
+        },
       });
     } else {
       submitBtn.prop("disabled", false);

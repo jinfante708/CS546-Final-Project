@@ -280,6 +280,18 @@ router.put("/profile", async (request, response) => {
     const lastName = validateLastName(xss(requestPostData.lastName));
     const dateOfBirth = validateDateOfBirth(xss(requestPostData.dateOfBirth));
 
+    const userDetails = request.session.user;
+    if (
+      firstName === userDetails.firstName &&
+      lastName === userDetails.lastName &&
+      dateOfBirth === userDetails.dateOfBirth
+    ) {
+      throwError(
+        ErrorCode.BAD_REQUEST,
+        "No fields have been changed from their original values, so no update has occurred!"
+      );
+    }
+
     const user = await usersData.updateProfile(
       request.session.user._id,
       firstName,
