@@ -1,4 +1,3 @@
-
 <div class="container d-flex flex-column">
     <div class="row align-items-center justify-content-center g-0 min-vh-100">
         <div class="col-lg-5 col-md-8 py-8 py-xl-0">
@@ -12,14 +11,14 @@
 
 
 
-                            <input type="hidden" id="task-id" name="task-id" value={{task._id}}>
+                            <input type="hidden" id="task-id" name="task-id" value='{{task._id}}'>
 
 
                             <div class="mb-3">
                                 <label for="task-name-input" class="form-label">Name<span
                                         class="mandatory">*</span></label>
                                 <input type="text" id="task-name-input" name="task-name" class="form-control"
-                                    placeholder="Task Name" value={{task.name}} required="required"
+                                    placeholder="Task Name" value="{{task.name}} " required="required"
                                     autocomplete="off" />
 
                                 <div class="valid-feedback">
@@ -34,7 +33,7 @@
                                 <label for="importance-input" class="form-label">Importance<span
                                         class="mandatory">*</span></label>
                                 <input type="number" id="importance-input" name="importance" class="form-control"
-                                    placeholder="Importance" value={{task.importance}} required="required"
+                                    placeholder="Importance" value="{{task.importance}}" required="required"
                                     autocomplete="off" />
                                 <div class="valid-feedback">
                                     Looks good!
@@ -48,7 +47,7 @@
                                 <label for="deadline-input" class="form-label">Deadline Date<span
                                         class="mandatory">*</span></label>
                                 <input type="text" id="deadline-input" name="deadline" class="form-control"
-                                    placeholder="Deadline" value={{task.deadlineDate}} required="required"
+                                    placeholder="Deadline" value="{{task.deadlineDate}}" required="required"
                                     autocomplete="off" />
                                 <div class="valid-feedback">
                                     Looks good!
