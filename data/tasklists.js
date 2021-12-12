@@ -9,6 +9,8 @@ const verify = require ('./verify');
 const uuid = require ("uuid");//when in use, type _id = uuid.v4();
 
 async function create(listName, userId){
+
+    listName = listName.trim();
     if(!verify.validString(listName)){
         throw "listName is not valid";
     }
@@ -52,6 +54,24 @@ async function create(listName, userId){
     
 
     return taskList;
+}
+
+
+async function checkDuplicate(userId, listName){
+
+    const allLists = await this.getAllForAUser(userId);
+
+    for(let x of allLists){
+
+        let tempList = await this.get(x);
+
+        if(listName.trim().toLowerCase() === tempList.listName.toLowerCase()){
+            return true;
+        }
+    }
+
+    return false;
+
 }
 
 async function getAll(){
@@ -212,5 +232,6 @@ module.exports = {
     update,
     remove,
     addTask,
-    getAllForAUser
+    getAllForAUser,
+    checkDuplicate
 }

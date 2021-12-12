@@ -176,6 +176,16 @@ router.post('/', async (req,res) =>{
         return;
     }
 
+
+    let duplicated = await taskListsData.checkDuplicate(req.session.user._id, listInfo.listName);
+
+    console.log(duplicated);
+
+    if(duplicated){
+        res.status(400).json({error: 'List with this name has already been created.'});
+        return;
+    }
+
     try{
         const newList = await taskListsData.create(listInfo.listName, req.session.user._id);
 

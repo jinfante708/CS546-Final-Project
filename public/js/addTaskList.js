@@ -22,8 +22,8 @@ $(document).ready(function () {
         // if(validString(input.val())){
         if(input.val().trim().length > 0){
             error.html("");
-            form.trigger("reset");
-            input.focus();
+            // form.trigger("reset");
+            // input.focus();
             
             const newList = {
                 listName: input.val()
@@ -43,24 +43,37 @@ $(document).ready(function () {
 
     function submit(list){
 
+        console.log(list);
+
+        
+        
 
         let requestConfig = {
             url: "/tasklists",
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify(list),
-            beforeSend: function () {
-                $("#error").removeClass("d-none");
-            },
-            success: function () {
+            
+            success: function (data) {
+                
                 window.location.href = "/tasklists";
+                error.html(data);
             },
-            complete: function () {
-                $("#error").addClass("d-none");
-            },
+            // complete: function (data) {
+            //     // $("#error").addClass("d-none");
+
+            //     let er = data.responseJSON.error
+            //     error.html(er);
+            // },
             error: function (data) {
-                $("#error").html(data.responseJSON.error);
-                $("#error").removeClass("d-none");
+
+                let er = data.responseJSON.error;
+
+                console.log(er);
+                // $("#error").html(data.responseJSON.error);
+                // $("#error").removeClass("d-none");
+
+                error.html(er);
             },
         }
         $.ajax(requestConfig);
@@ -72,7 +85,7 @@ $(document).ready(function () {
             
         // })
     }
-  })(jQuery);
+  });
   
 
 
