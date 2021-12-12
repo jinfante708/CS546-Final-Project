@@ -19,7 +19,7 @@ Afterwards run 'npm start' to host the website on your local machine (http://loc
 ## Email reminders
 This web application sends out email reminders for a task the day before its deadline date via two npm packages, `nodemailer` and `cron`. However, you must set up an email that will act as the host to actually send the deadline reminders. The username and password of the email you use will be stored in an environment file, which is simplified with the npm package `dotenv`. This avoids posting your email credentials on your public github repo as the environment file is included in the `.gitignore` file.
 
-To do this, create a file `env` in the root directory.
+To do this, create a file `.env` in the root directory.
 
 Add two lines to this file, which will be environment variables for the username/password of your email.
 
