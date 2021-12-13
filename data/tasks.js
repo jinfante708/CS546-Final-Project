@@ -260,8 +260,6 @@ let exportedMethods = {
         const tasksCollection = await tasks();
         let doc = await this.get(id, userid);
 
-        console.log(doc);
-
         if (
             doc.name === name &&
             doc.deadlineDate === deadlineDate &&
