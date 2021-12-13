@@ -260,6 +260,16 @@ let exportedMethods = {
         const tasksCollection = await tasks();
         let doc = await this.get(id, userid);
 
+        console.log(doc);
+
+        if (
+            doc.name === name &&
+            doc.deadlineDate === deadlineDate &&
+            doc.importance === importance
+        ) {
+            throw "No fields have been changed from their original values, so no update has occurred!";
+        }
+
         let now = moment(Date.parse(moment().format("MM/DD/YYYY"))); //todays date
         let end = moment(
             Date.parse(moment(Date.parse(deadlineDate)).format("MM/DD/YYYY"))

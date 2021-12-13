@@ -101,6 +101,7 @@ $(document).ready(function () {
                 error: function (data) {
                     $("#error-message").html(data.responseJSON.error);
                     $("#error-message").removeClass("d-none");
+                    submitBtn.prop("disabled", false);
                 },
             });
         } else {
