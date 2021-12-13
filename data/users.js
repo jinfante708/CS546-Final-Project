@@ -136,7 +136,9 @@ async function getUserStatistics(_userId) {
     const numTasklists = tasklists.length;
 
     const tasksCollection = await tasksCol();
-    const tasks = await tasksCollection.find({ userId: userId }).toArray();
+    const tasks = await tasksCollection
+      .find({ userId: userId, isDeleted: false })
+      .toArray();
     const numTasks = tasks.length;
 
     let completedOnTime = 0;
